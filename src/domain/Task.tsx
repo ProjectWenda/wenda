@@ -1,9 +1,9 @@
-import { Moment }from 'moment';
+import { Moment } from "moment";
 
 export enum TaskStatus {
   ToDo = 0,
   Completed,
-  Archived
+  Archived,
 }
 
 export interface Task {
