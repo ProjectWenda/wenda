@@ -1,38 +1,42 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import Layout from "./views/Layout";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import AuthLayout from "./views/AuthLayout";
 import Login from "./views/Login";
-import { authLoader } from "./loaders/authLoader";
 import "./index.css";
+import { RecoilRoot } from "recoil";
+import Dashboard from "./views/Dashboard";
+import Logout from "./views/Logout";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: <AuthLayout />,
     children: [
       {
         index: true,
-        element: <div>I'm a dashboard.</div>,
-        loader: authLoader,
+        element: <Dashboard />,
       },
       {
         path: "about",
         element: <div>this is a public ABOUT page.</div>,
       },
-      {
-        path: "login",
-        element: <Login />
-      }
     ],
   },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "logout",
+    element: <Logout />,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RecoilRoot>
+      <RouterProvider router={router} />
+    </RecoilRoot>
   </React.StrictMode>
 );

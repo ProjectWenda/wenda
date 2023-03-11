@@ -1,6 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 
-const Layout = () => {
+const AuthLayout = () => {
   return (
     <div>
       <nav>
@@ -24,4 +24,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default AuthLayout;
