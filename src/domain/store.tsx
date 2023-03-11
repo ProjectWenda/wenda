@@ -9,11 +9,12 @@ export const taskListState = recoil.atom<Task[]>({
 
 const authCookie = document.cookie.replace(
   /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
-  "$1");
+  "$1"
+);
 
 export const authUserState = recoil.atom<User | null>({
   key: "authUserState",
-  default: authCookie === "" ? null : { authUId: authCookie },
+  default: authCookie === "" ? null : { authUID: authCookie },
 });
 
 export const loggedInState = selector<boolean>({

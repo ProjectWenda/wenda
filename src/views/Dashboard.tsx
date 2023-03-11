@@ -10,12 +10,12 @@ const Dashboard = () => {
   const cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
   React.useEffect(() => {
-    setUserState(cookieValue === '' ? null : { ...userState, authUId: cookieValue });
+    setUserState(cookieValue === '' ? null : { ...userState, authUID: cookieValue });
     if (cookieValue === '') {
       setUserState(null);
       navigate('/login');
     } else {
-      setUserState({ authUId: cookieValue });
+      setUserState({ authUID: cookieValue });
     }
   }, [cookieValue])
 
