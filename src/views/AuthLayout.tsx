@@ -3,23 +3,13 @@ import { Link, Outlet } from "react-router-dom";
 const AuthLayout = () => {
   return (
     <div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/nothing-here">Nothing Here</Link>
-          </li>
-        </ul>
-      </nav>
-      <Outlet />
+      <div className="flex container gap-3 bg-light-gray max-w-none">
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </div>
+      <div className="flex container">
+        <Outlet />
+      </div>
     </div>
   );
 };
