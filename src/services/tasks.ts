@@ -33,8 +33,7 @@ export const deleteTask = async (uid: string, id: number) : Promise<Task | null>
 
 export const editTask = async (uid: string, id: number, editedTaskData: Partial<Task>) : Promise<Task | null> => {
   const reqParam = {
-    params: { uid, task_id: id },
-    ...editedTaskData,
+    params: { uid, task_id: id, ...editedTaskData },
   }
   try {
     const response = await axios.put(`${baseUrl}/task`, reqParam);
