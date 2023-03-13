@@ -1,7 +1,6 @@
-import moment from "moment";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, loggedInState, userTasksState } from "../domain/store";
 import { Task, TaskStatus } from "../domain/Task";
 import { addTask, deleteTask, editTask, getTasks } from "../services/tasks";
@@ -117,11 +116,6 @@ const Dashboard = () => {
           (t, ind) => (
             <TaskItem key={ind} task={t} uid={userState!.authUID} />
           )
-          // <div key={ind}>
-          //   {/* <li>{t.content}</li>
-          //   <button onClick={() => handleDelete(t.id)}>X</button>
-          //   <button onClick={() => handleEdit(t.id)}>pencil icon</button> */}
-          // </div>
         )}
       </ul>
     </div>
