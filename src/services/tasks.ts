@@ -36,7 +36,7 @@ export const editTask = async (uid: string, id: number, editedTaskData: Partial<
     params: { uid, task_id: id, ...editedTaskData },
   }
   try {
-    const response = await axios.put(`${baseUrl}/task`, reqParam);
+    const response = await axios.put(`${baseUrl}/task`, null, reqParam);
     return response.data;
   } catch (e) {
     return null;
