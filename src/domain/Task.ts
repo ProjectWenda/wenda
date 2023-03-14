@@ -10,6 +10,7 @@ export interface Task {
   id: number;
   timeCreated: Moment;
   timeUpdated: Moment;
+  taskDate: Moment;
   content: string;
   status: TaskStatus;
 }

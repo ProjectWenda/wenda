@@ -1,8 +1,10 @@
+import moment from "moment";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, loggedInState, userTasksState } from "../domain/store";
 import { Task, TaskStatus } from "../domain/Task";
+import { AddTaskArgs, DeleteTaskArgs, EditTaskArgs } from "../schema/Task";
 import { addTask, deleteTask, editTask, getTasks } from "../services/tasks";
 
 interface TaskItemProps {
@@ -17,21 +19,26 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
   const [editing, setEditing] = React.useState(false);
 
   const handleDelete = async () => {
-    await deleteTask(uid, task.id);
+    const deleteArgs : DeleteTaskArgs = {
+      uid,
+      taskId: task.id,
+    }
+    await deleteTask(deleteArgs);
     setTaskListState((prev) => [...prev.filter((t) => t.id !== task.id)]);
   };
 
   const handleEdit = async () => {
-    console.log(newStatus);
-    const updatedTaskData: Partial<Task> = {
+    const newTask: Task = {
+      ...task,
       content: newContent,
       status: newStatus,
     };
-    const newTask: Task = {
-      ...task,
-      ...updatedTaskData,
-    };
-    const editRes = await editTask(uid, task.id, updatedTaskData);
+    const editArgs : EditTaskArgs = {
+      uid,
+      taskId: task.id,
+      ...newTask,
+    }
+    const editRes = await editTask(editArgs);
     if (editRes !== null) {
       const newListState = taskList.map((t) =>
         t.id === task.id ? newTask : t
@@ -94,11 +101,16 @@ const Dashboard = () => {
   }, [loggedIn]);
 
   const submitTask = async () => {
-    const newTask = {
+    const newTask : Partial<Task> = {
       content: newTaskState,
       status: TaskStatus.Completed,
+      taskDate: moment().week(25),
     };
-    const newTaskRes = await addTask(userState!.authUID, newTask);
+    const addArgs : AddTaskArgs = {
+      uid: userState!.authUID,
+      taskData: newTask,
+    }
+    const newTaskRes = await addTask(addArgs);
     setTaskListState((prev) => [...prev, newTaskRes]);
     setNewTaskState("");
   };
