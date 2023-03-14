@@ -21,7 +21,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
   const handleDelete = async () => {
     const deleteArgs : DeleteTaskArgs = {
       uid,
-      taskId: task.id,
+      taskID: task.id,
     }
     await deleteTask(deleteArgs);
     setTaskListState((prev) => [...prev.filter((t) => t.id !== task.id)]);
@@ -35,7 +35,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
     };
     const editArgs : EditTaskArgs = {
       uid,
-      taskId: task.id,
+      taskID: task.id,
       ...newTask,
     }
     const editRes = await editTask(editArgs);

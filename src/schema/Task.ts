@@ -2,12 +2,12 @@ import { Task } from "../domain/Task";
 
 export interface DeleteTaskArgs {
   uid: string;
-  taskId: number;
+  taskID: number;
 }
 
 export interface EditTaskArgs extends Partial<Task>{
   uid: string;
-  taskId: number;
+  taskID: number;
 }
 
 export interface AddTaskArgs {
