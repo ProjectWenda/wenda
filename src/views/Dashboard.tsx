@@ -8,9 +8,9 @@ import {
   userTasksState,
   weekTasksState,
 } from "../store";
-import { Task, TaskStatus, taskToServer } from "../schema/Task";
-import { AddTaskArgs, DeleteTaskArgs, EditTaskArgs } from "../schema/Task";
-import { addTask, deleteTask, editTask, getTasks } from "../services/tasks";
+import { Task, TaskStatus } from "../schema/Task";
+import { AddTaskArgs, DeleteTaskArgs } from "../schema/Task";
+import { addTask, deleteTask, getTasks } from "../services/tasks";
 import { Weekday } from "../schema/Weekday";
 import { getWeekdayName } from "../domain/WeekdayUtils";
 import { editTaskToServer, getTasksByDay } from "../domain/TaskUtils";
@@ -21,7 +21,7 @@ interface TaskItemProps {
   canEdit?: boolean;
 }
 
-const CONTENT_DIV_BASE_CLASSNAME = "bg-slate-800 p-2 min-h-20";
+const CONTENT_DIV_BASE_CLASSNAME = "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20";
 const CONTENT_TEXT_BASE_CLASSNAME = "cursor-pointer w-fit";
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
@@ -99,7 +99,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
         )}
       </div>
       {canEdit && (
-        <div className="bg-slate-700 rounded-b flex justify-between p-1">
+        <div className="bg-slate-300 dark:bg-zinc-500 rounded-b flex justify-between p-1">
           <button className="text-sm py-1 px-2" onClick={handleDelete}>
             X
           </button>
@@ -125,7 +125,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const weekTasks = useRecoilValue(weekTasksState);
   const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
   return (
-    <div className="w-52 mr-3 bg-zinc-700 p-2 rounded-lg h-3/4">
+    <div className="w-52 mr-3 bg-gray-200 dark:bg-zinc-700 p-2 rounded-lg h-3/4">
       <div className="flex justify-between">
         <h2 className="text-lg font-bold">{getWeekdayName(dayOfWeek)}</h2>
         <button
@@ -149,7 +149,7 @@ const Dashboard = () => {
   const [newTaskContent, setNewTaskContent] = React.useState("");
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [userState, setUserState] = useRecoilState(authUserState);
-  const [taskList, setTaskListState] = useRecoilState(userTasksState);
+  const [_, setTaskListState] = useRecoilState(userTasksState);
   const loggedIn = useRecoilValue(loggedInState);
 
   const cookieValue = document.cookie.replace(
@@ -182,6 +182,7 @@ const Dashboard = () => {
     fetchData();
   }, [loggedIn]);
 
+  // submit a new task to the server
   const submitTask = async () => {
     const newTask: Partial<Task> = {
       content: newTaskContent,
@@ -200,6 +201,8 @@ const Dashboard = () => {
 
   const dayOfWeekComponentsList = [];
 
+  // we need to recheck userState here because 
+  // it's not guaranteed to be initialized
   if (userState) {
     for (let i = 0; i < 7; i++) {
       dayOfWeekComponentsList.push(
