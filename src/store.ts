@@ -1,7 +1,7 @@
+import moment from "moment";
 import { selector, atom } from "recoil";
-import { getTasks } from "../services/tasks";
-import { Task } from "./Task";
-import { User } from "./User";
+import { Task } from "./schema/Task";
+import { User } from "./schema/User";
 
 const authCookie = document.cookie.replace(
   /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -24,4 +24,13 @@ export const loggedInState = selector<boolean>({
 export const userTasksState = atom<Task[]>({
   key: "userTasksState",
   default: [],
+});
+
+export const weekTasksState = selector<Task[]>({
+  key: "weekTasksState",
+  get: ({ get }) => {
+    const tasks = get(userTasksState);
+    console.log(tasks);
+    return tasks.filter((t) => t.taskDate.week() === moment().week());
+  }
 })

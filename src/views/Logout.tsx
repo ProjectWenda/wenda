@@ -1,6 +1,6 @@
 import React from "react";
 import { useRecoilValue } from "recoil";
-import { loggedInState } from "../domain/store";
+import { loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
