@@ -14,6 +14,17 @@ import { addTask, deleteTask, getTasks } from "../services/tasks";
 import { Weekday } from "../schema/Weekday";
 import { getWeekdayName } from "../domain/WeekdayUtils";
 import { editTaskToServer, getTasksByDay } from "../domain/TaskUtils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheckCircle,
+  faChevronDown,
+  faChevronUp,
+  faCirclePlus,
+  faCircleXmark,
+  faPencil,
+  faTrash,
+  faX,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface TaskItemProps {
   task: Task;
@@ -21,13 +32,21 @@ interface TaskItemProps {
   canEdit?: boolean;
 }
 
-const CONTENT_DIV_BASE_CLASSNAME = "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20";
+const CONTENT_DIV_BASE_CLASSNAME =
+  "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow";
 const CONTENT_TEXT_BASE_CLASSNAME = "cursor-pointer w-fit";
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
   const [taskList, setTaskListState] = useRecoilState(userTasksState);
-  const [newContent, setNewContent] = React.useState("");
+  const [newContent, setNewContent] = React.useState(task.content);
   const [editing, setEditing] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!canEdit) {
+      setEditing(false);
+      setNewContent(task.content);
+    }
+  }, [canEdit]);
 
   const handleDelete = async () => {
     const deleteArgs: DeleteTaskArgs = {
@@ -47,7 +66,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
       );
       setTaskListState(newListState);
       setEditing(false);
-      setNewContent("");
+      setNewContent(updatedTask.content);
     }
   };
 
@@ -85,60 +104,150 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
   return (
     <div className="flex flex-col">
       <div className={contentDivClassName}>
-        <p className={contentTextClassName} onClick={handleClick}>
-          {task.content}
-        </p>
-        {editing && (
-          <>
+        {editing ? (
+          <div className="flex items-center gap-1">
             <input
               onChange={(e) => setNewContent(e.target.value)}
               value={newContent}
             />
-            <button onClick={handleEdit}>Save edits</button>
-          </>
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="cursor-pointer text-sm"
+              onClick={handleEdit}
+            />
+          </div>
+        ) : (
+          <p className={contentTextClassName} onClick={handleClick}>
+            {task.content}
+          </p>
         )}
       </div>
       {canEdit && (
-        <div className="bg-slate-300 dark:bg-zinc-500 rounded-b flex justify-between p-1">
-          <button className="text-sm py-1 px-2" onClick={handleDelete}>
-            X
-          </button>
-          <button
-            className="text-sm py-1 px-2"
+        <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow">
+          <FontAwesomeIcon
+            icon={editing ? faX : faPencil}
+            className="text-sm py-1 px-2 cursor-pointer"
             onClick={() => setEditing(!editing)}
-          >
-            pencil icon
-          </button>
+          />
+          <FontAwesomeIcon
+            icon={faTrash}
+            className="text-sm py-1 px-2 cursor-pointer"
+            onClick={handleDelete}
+          />
         </div>
       )}
     </div>
   );
 };
 
+interface NewTaskFormProps {
+  setAddingNewTask: React.Dispatch<React.SetStateAction<boolean>>;
+  dayOfWeek: Weekday;
+  uid: string;
+}
+
+const NewTaskForm: React.FC<NewTaskFormProps> = ({
+  setAddingNewTask,
+  dayOfWeek,
+  uid,
+}) => {
+  const [taskList, setTaskListState] = useRecoilState(userTasksState);
+  const [newContent, setNewContent] = React.useState("");
+
+  const stopAddingTask = () => {
+    setAddingNewTask(false);
+    setNewContent("");
+  };
+
+  const handleSubmit = async () => {
+    const newTask: Partial<Task> = {
+      content: newContent,
+      status: TaskStatus.ToDo,
+      taskDate: moment().day(dayOfWeek),
+    };
+    const addArgs: AddTaskArgs = {
+      uid,
+      taskData: newTask,
+    };
+    const newTaskRes = await addTask(addArgs);
+    setTaskListState((prev) => [...prev, newTaskRes]);
+    stopAddingTask();
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
+        <input
+          value={newContent}
+          onChange={(e) => setNewContent(e.target.value)}
+        />
+      </div>
+      <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow gap-2">
+        <FontAwesomeIcon
+          icon={faCircleXmark}
+          className="cursor-pointer text-sm"
+          onClick={stopAddingTask}
+        />
+        <FontAwesomeIcon
+          icon={faCheckCircle}
+          className="cursor-pointer text-sm"
+          onClick={handleSubmit}
+        />
+      </div>
+    </div>
+  );
+};
 interface DayOfWeekListProps {
   dayOfWeek: Weekday;
   uid: string;
 }
 
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
-  const [editingWeek, setEditingWeek] = React.useState(false);
+  const [editingDay, setEditingDay] = React.useState(false);
+  const [addingNewTask, setAddingNewTask] = React.useState(false);
   const weekTasks = useRecoilValue(weekTasksState);
   const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
+  const isToday = moment().day() === dayOfWeek;
+  const contClassName = `w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
+    isToday && "border-t-4 border-t-disc-blue"
+  }`;
+
+  const addNewClassName = addingNewTask
+    ? "text-sm opacity-40"
+    : "text-sm cursor-pointer"
+
   return (
-    <div className="w-52 mr-3 bg-gray-200 dark:bg-zinc-700 p-2 rounded-lg h-3/4">
-      <div className="flex justify-between">
-        <h2 className="text-lg font-bold">{getWeekdayName(dayOfWeek)}</h2>
-        <button
-          onClick={() => setEditingWeek(!editingWeek)}
-          className="py-1 px-2 text-sm"
-        >
-          edit
-        </button>
+    <div className={contClassName}>
+      <div
+        className={`flex justify-between items-center bg-zinc-300 dark:bg-disc-dark-4 p-1 ${
+          !isToday && "pt-2"
+        }`}
+      >
+        <h2 className="text-lg ml-1 font-bold">{getWeekdayName(dayOfWeek)}</h2>
+        <div className="flex gap-3 mr-1">
+          <FontAwesomeIcon
+            icon={faCirclePlus}
+            className={addNewClassName}
+            onClick={!addingNewTask ? () => setAddingNewTask(true) : undefined}
+          />
+          <FontAwesomeIcon
+            icon={editingDay ? faChevronUp : faChevronDown}
+            onClick={() => setEditingDay(!editingDay)}
+            className="text-sm cursor-pointer"
+          />
+        </div>
       </div>
-      <div className="flex flex-col gap-1 mt-2">
+      <div className="flex flex-col gap-1 mt-1 p-1">
         {dayTasks.map((t, ind) => (
-          <TaskItem task={t} uid={uid} key={ind} canEdit={editingWeek} />
+          <TaskItem task={t} uid={uid} key={ind} canEdit={editingDay} />
         ))}
+        {addingNewTask && (
+          <NewTaskForm
+            setAddingNewTask={setAddingNewTask}
+            dayOfWeek={dayOfWeek}
+            uid={uid}
+          />
+        )}
       </div>
     </div>
   );
@@ -148,6 +257,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [newTaskContent, setNewTaskContent] = React.useState("");
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
+  const [creatingItem, setCreatingItem] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
   const [_, setTaskListState] = useRecoilState(userTasksState);
   const loggedIn = useRecoilValue(loggedInState);
@@ -197,11 +307,12 @@ const Dashboard = () => {
     setTaskListState((prev) => [...prev, newTaskRes]);
     setNewTaskContent("");
     setNewTaskDOW(0);
+    setCreatingItem(false);
   };
 
   const dayOfWeekComponentsList = [];
 
-  // we need to recheck userState here because 
+  // we need to recheck userState here because
   // it's not guaranteed to be initialized
   if (userState) {
     for (let i = 0; i < 7; i++) {
@@ -211,33 +322,61 @@ const Dashboard = () => {
     }
   }
 
+  const clearCreating = () => {
+    setNewTaskContent("");
+    setNewTaskDOW(0);
+    setCreatingItem(false);
+  };
+
   return (
-    <div className="h-full">
-      <h1>Dashboard</h1>
+    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
       <div className="flex gap-3 items-center mb-3">
-        <input
-          onChange={(e) => setNewTaskContent(e.target.value)}
-          value={newTaskContent}
-          className="rounded"
-        />
-        <select
-          onChange={(e) => setNewTaskDOW(+e.target.value)}
-          value={newTaskDOW}
-          className="h-6 rounded"
-        >
-          <option value={0}>Sunday</option>
-          <option value={1}>Monday</option>
-          <option value={2}>Tuesday</option>
-          <option value={3}>Wednesday</option>
-          <option value={4}>Thursday</option>
-          <option value={5}>Friday</option>
-          <option value={6}>Saturday</option>
-        </select>
-        <button className="py-1 px-2" onClick={submitTask}>
-          Submit
-        </button>
+        {!creatingItem ? (
+          <div
+            className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded ml-2 items-center"
+            onClick={() => setCreatingItem(true)}
+          >
+            <FontAwesomeIcon
+              icon={faCirclePlus}
+              className="hover:text-slate-300 rounded-full"
+            />
+            <p className="text-sm">Create item</p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 ml-1">
+            <input
+              onChange={(e) => setNewTaskContent(e.target.value)}
+              value={newTaskContent}
+              className="rounded p-1"
+              placeholder="New task content.."
+            />
+            <select
+              onChange={(e) => setNewTaskDOW(+e.target.value)}
+              value={newTaskDOW}
+              className="h-8 rounded"
+            >
+              <option value={0}>Sunday</option>
+              <option value={1}>Monday</option>
+              <option value={2}>Tuesday</option>
+              <option value={3}>Wednesday</option>
+              <option value={4}>Thursday</option>
+              <option value={5}>Friday</option>
+              <option value={6}>Saturday</option>
+            </select>
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="mx-2 cursor-pointer"
+              onClick={submitTask}
+            />
+            <FontAwesomeIcon
+              icon={faCircleXmark}
+              className="cursor-pointer"
+              onClick={clearCreating}
+            />
+          </div>
+        )}
       </div>
-      <div className="flex h-5/6">{dayOfWeekComponentsList}</div>
+      <div className="flex flex-1">{dayOfWeekComponentsList}</div>
     </div>
   );
 };
