@@ -22,6 +22,7 @@ import {
   faCirclePlus,
   faCircleXmark,
   faPencil,
+  faPlusCircle,
   faTrash,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
@@ -189,6 +190,26 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
     </div>
   );
 };
+
+interface NewTaskPromptProps {
+  setAddingNewTask: React.Dispatch<React.SetStateAction<boolean>>;
+  className: string;
+}
+
+const NewTaskPrompt: React.FC<NewTaskPromptProps> = ({
+  setAddingNewTask,
+  className,
+}) => {
+  return (
+    <div
+      className={`rounded h-8 opacity-40 bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow flex cursor-pointer ${className}`}
+      onClick={() => setAddingNewTask(true)}
+    >
+      <FontAwesomeIcon icon={faPlusCircle} />
+    </div>
+  );
+};
+
 interface DayOfWeekListProps {
   dayOfWeek: Weekday;
   uid: string;
@@ -200,12 +221,12 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const weekTasks = useRecoilValue(weekTasksState);
   const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
   const isToday = moment().day() === dayOfWeek;
-  const contClassName = `w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
+  const contClassName = `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
     isToday && "border-t-4 border-t-disc-blue"
   }`;
 
   return (
-    <div className={contClassName}>
+    <div className={contClassName} onClick={() => console.log("hello")}>
       <div
         className={`flex justify-between items-center bg-zinc-300 dark:bg-disc-dark-4 p-1 ${
           !isToday && "pt-2"
@@ -230,11 +251,16 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
         {dayTasks.map((t, ind) => (
           <TaskItem task={t} uid={uid} key={ind} canEdit={editingDay} />
         ))}
-        {addingNewTask && (
+        {addingNewTask ? (
           <NewTaskForm
             setAddingNewTask={setAddingNewTask}
             dayOfWeek={dayOfWeek}
             uid={uid}
+          />
+        ) : (
+          <NewTaskPrompt
+            className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in"
+            setAddingNewTask={setAddingNewTask}
           />
         )}
       </div>
@@ -319,7 +345,6 @@ const Dashboard = () => {
 
   useKeyPress(["Escape"], clearCreating);
   useKeyPress(["i"], () => setCreatingItem(true), null, true);
-
 
   return (
     <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
