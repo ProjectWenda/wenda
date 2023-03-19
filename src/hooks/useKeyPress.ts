@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
-export const useKeyPress = (keys : string[], callback: (e: KeyboardEvent) => void, node = null) => {
+export const useKeyPress = (
+  keys: string[],
+  callback: (e: KeyboardEvent) => void,
+  node = null,
+  requireCtrl?: boolean
+) => {
   // implement the callback ref pattern
   const callbackRef = useRef(callback);
   useLayoutEffect(() => {
@@ -11,7 +16,8 @@ export const useKeyPress = (keys : string[], callback: (e: KeyboardEvent) => voi
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       // check if one of the key is part of the ones we want
-      if (keys.some((key) => event.key === key)) {
+      if (keys.some((key) => event.key === key) && (!requireCtrl || event.ctrlKey)) {
+        event.preventDefault();
         callbackRef.current(event);
       }
     },
@@ -22,12 +28,10 @@ export const useKeyPress = (keys : string[], callback: (e: KeyboardEvent) => voi
     // target is either the provided node or the document
     const targetNode = node ?? document;
     // attach the event listener
-    targetNode &&
-      targetNode.addEventListener("keydown", handleKeyPress);
+    targetNode && targetNode.addEventListener("keydown", handleKeyPress);
 
     // remove the event listener
     return () =>
-      targetNode &&
-        targetNode.removeEventListener("keydown", handleKeyPress);
+      targetNode && targetNode.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress, node]);
 };

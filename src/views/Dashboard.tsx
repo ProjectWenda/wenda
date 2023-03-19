@@ -148,7 +148,6 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
 }) => {
   const [taskList, setTaskListState] = useRecoilState(userTasksState);
   const [newContent, setNewContent] = React.useState("");
-  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const stopAddingTask = () => {
     setAddingNewTask(false);
@@ -171,13 +170,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   };
 
   useKeyPress(["Enter"], handleSubmit);
-
-  // focus on input when component mounts
-  React.useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+  useKeyPress(["Escape"], stopAddingTask);
 
   return (
     <div className="flex flex-col">
@@ -186,7 +179,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
           value={newContent}
           className="pl-1 rounded"
           onChange={(e) => setNewContent(e.target.value)}
-          ref={inputRef}
+          autoFocus
         />
       </div>
       <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow gap-2">
@@ -324,6 +317,10 @@ const Dashboard = () => {
     setCreatingItem(false);
   };
 
+  useKeyPress(["Escape"], clearCreating);
+  useKeyPress(["i"], () => setCreatingItem(true), null, true);
+
+
   return (
     <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
       <div className="flex gap-3 items-center mb-3">
@@ -336,6 +333,7 @@ const Dashboard = () => {
             onKeyDown={(e) =>
               e.key === "Enter" ? setCreatingItem(true) : null
             }
+            title="ctrl+i"
           >
             <FontAwesomeIcon
               icon={faCirclePlus}
@@ -351,6 +349,7 @@ const Dashboard = () => {
               value={newTaskContent}
               className="rounded p-1"
               placeholder="New task content.."
+              autoFocus
             />
             <select
               onChange={(e) => setNewTaskDOW(+e.target.value)}
