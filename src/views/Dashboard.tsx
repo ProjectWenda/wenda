@@ -26,6 +26,7 @@ import {
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { useKeyPress } from "../hooks/useKeyPress";
+import IconButton from "../components/IconButton";
 
 interface TaskItemProps {
   task: Task;
@@ -110,12 +111,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
             <input
               onChange={(e) => setNewContent(e.target.value)}
               value={newContent}
+              className="pl-1 rounded"
             />
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              className="cursor-pointer text-sm"
-              onClick={handleEdit}
-            />
+            <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
           </div>
         ) : (
           <p className={contentTextClassName} onClick={handleClick}>
@@ -124,17 +122,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
         )}
       </div>
       {canEdit && (
-        <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow">
-          <FontAwesomeIcon
+        <div className="bg-disc-light-blue rounded-b flex justify-end p-1 gap-2 shadow">
+          <IconButton
             icon={editing ? faX : faPencil}
-            className="text-sm py-1 px-2 cursor-pointer"
+            size="sm"
             onClick={() => setEditing(!editing)}
           />
-          <FontAwesomeIcon
-            icon={faTrash}
-            className="text-sm py-1 px-2 cursor-pointer"
-            onClick={handleDelete}
-          />
+          <IconButton icon={faTrash} size="sm" onClick={handleDelete} />
         </div>
       )}
     </div>
@@ -190,21 +184,14 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
       <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
         <input
           value={newContent}
+          className="pl-1 rounded"
           onChange={(e) => setNewContent(e.target.value)}
           ref={inputRef}
         />
       </div>
       <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow gap-2">
-        <FontAwesomeIcon
-          icon={faCircleXmark}
-          className="cursor-pointer text-sm"
-          onClick={stopAddingTask}
-        />
-        <FontAwesomeIcon
-          icon={faCheckCircle}
-          className="cursor-pointer text-sm"
-          onClick={handleSubmit}
-        />
+        <IconButton icon={faCircleXmark} onClick={stopAddingTask} size="sm" />
+        <IconButton icon={faCheckCircle} onClick={handleSubmit} size="sm" />
       </div>
     </div>
   );
@@ -224,10 +211,6 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
     isToday && "border-t-4 border-t-disc-blue"
   }`;
 
-  const addNewClassName = addingNewTask
-    ? "text-sm opacity-40"
-    : "text-sm cursor-pointer"
-
   return (
     <div className={contClassName}>
       <div
@@ -237,15 +220,16 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
       >
         <h2 className="text-lg ml-1 font-bold">{getWeekdayName(dayOfWeek)}</h2>
         <div className="flex gap-3 mr-1">
-          <FontAwesomeIcon
+          <IconButton
             icon={faCirclePlus}
-            className={addNewClassName}
+            size="sm"
+            disabled={addingNewTask}
             onClick={!addingNewTask ? () => setAddingNewTask(true) : undefined}
           />
-          <FontAwesomeIcon
+          <IconButton
             icon={editingDay ? faChevronUp : faChevronDown}
             onClick={() => setEditingDay(!editingDay)}
-            className="text-sm cursor-pointer"
+            size="sm"
           />
         </div>
       </div>
@@ -347,10 +331,16 @@ const Dashboard = () => {
           <div
             className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded ml-2 items-center"
             onClick={() => setCreatingItem(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) =>
+              e.key === "Enter" ? setCreatingItem(true) : null
+            }
           >
             <FontAwesomeIcon
               icon={faCirclePlus}
               className="hover:text-slate-300 rounded-full"
+              size="sm"
             />
             <p className="text-sm">Create item</p>
           </div>
@@ -375,16 +365,8 @@ const Dashboard = () => {
               <option value={5}>Friday</option>
               <option value={6}>Saturday</option>
             </select>
-            <FontAwesomeIcon
-              icon={faCheckCircle}
-              className="mx-2 cursor-pointer"
-              onClick={submitTask}
-            />
-            <FontAwesomeIcon
-              icon={faCircleXmark}
-              className="cursor-pointer"
-              onClick={clearCreating}
-            />
+            <IconButton icon={faCheckCircle} onClick={submitTask} />
+            <IconButton icon={faCircleXmark} onClick={clearCreating} />
           </div>
         )}
       </div>
