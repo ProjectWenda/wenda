@@ -25,6 +25,7 @@ import {
   faTrash,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
+import { useKeyPress } from "../hooks/useKeyPress";
 
 interface TaskItemProps {
   task: Task;
@@ -153,6 +154,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
 }) => {
   const [taskList, setTaskListState] = useRecoilState(userTasksState);
   const [newContent, setNewContent] = React.useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const stopAddingTask = () => {
     setAddingNewTask(false);
@@ -174,12 +176,22 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
     stopAddingTask();
   };
 
+  useKeyPress(["Enter"], handleSubmit);
+
+  // focus on input when component mounts
+  React.useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="flex flex-col">
       <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
         <input
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}
+          ref={inputRef}
         />
       </div>
       <div className="bg-disc-light-blue rounded-b flex justify-end p-1 shadow gap-2">
