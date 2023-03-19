@@ -351,7 +351,7 @@ const Dashboard = () => {
       <div className="flex gap-3 items-center mb-3">
         {!creatingItem ? (
           <div
-            className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded ml-2 items-center"
+            className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded shadow ml-2 items-center"
             onClick={() => setCreatingItem(true)}
             role="button"
             tabIndex={0}
