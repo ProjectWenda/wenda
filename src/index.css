@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  input {
+  input, select {
     @apply dark:bg-zinc-700 bg-white
   }
   * {
