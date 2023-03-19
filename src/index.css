@@ -6,6 +6,9 @@
   input {
     @apply dark:bg-zinc-700 bg-white
   }
+  * {
+    @apply dark:text-white text-black
+  }
 }
 
 :root {
