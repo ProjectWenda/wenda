@@ -28,7 +28,7 @@ export interface Task {
   timeUpdated: Moment;
   taskDate: Moment;
   content: string;
-  status: TaskStatus;
+  taskStatus: TaskStatus;
 }
 
 export interface ServerTask {
@@ -37,7 +37,7 @@ export interface ServerTask {
   timeUpdated: string;
   taskDate: string;
   content: string;
-  status: TaskStatus;
+  taskStatus: TaskStatus;
 }
 
 export const tasksFromServer = (serverTasks: ServerTask[]): Task[] => {
@@ -47,7 +47,7 @@ export const tasksFromServer = (serverTasks: ServerTask[]): Task[] => {
     timeUpdated: moment(t.timeUpdated),
     taskDate: moment(t.taskDate),
     content: t.content,
-    status: t.status,
+    taskStatus: t.taskStatus,
   }));
 };
 
@@ -58,6 +58,6 @@ export const taskToServer = (task: Task): ServerTask => {
     timeUpdated: task.timeUpdated.toISOString(),
     taskDate: task.taskDate.toISOString(),
     content: task.content,
-    status: task.status,
+    taskStatus: task.taskStatus,
   };
 }

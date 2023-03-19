@@ -2,7 +2,7 @@ import axios from "axios";
 import { Task, tasksFromServer } from "../schema/Task";
 import { AddTaskArgs, DeleteTaskArgs, EditTaskArgs } from "../schema/Task";
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const getTasks = async (uid: string) : Promise<Task[]> => {
   const response = await axios.get(`${baseUrl}/tasks`, { params: { uid } });

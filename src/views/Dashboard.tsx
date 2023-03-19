@@ -78,8 +78,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
     : `${CONTENT_DIV_BASE_CLASSNAME} rounded`;
 
   const handleClick = async () => {
-    if (task.status === TaskStatus.Completed) {
-      const updatedProps: Partial<Task> = { status: TaskStatus.ToDo };
+    if (task.taskStatus === TaskStatus.Completed) {
+      const updatedProps: Partial<Task> = { taskStatus: TaskStatus.ToDo };
       const updatedTask = await editTaskToServer(task, uid, updatedProps);
       if (updatedTask !== null) {
         const newListState = taskList.map((t) =>
@@ -87,8 +87,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
         );
         setTaskListState(newListState);
       }
-    } else if (task.status === TaskStatus.ToDo) {
-      const updatedProps: Partial<Task> = { status: TaskStatus.Completed };
+    } else if (task.taskStatus === TaskStatus.ToDo) {
+      const updatedProps: Partial<Task> = { taskStatus: TaskStatus.Completed };
       const updatedTask = await editTaskToServer(task, uid, updatedProps);
       if (updatedTask !== null) {
         const newListState = taskList.map((t) =>
@@ -100,7 +100,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
   };
 
   const contentTextClassName =
-    task.status === TaskStatus.Completed
+    task.taskStatus === TaskStatus.Completed
       ? `${CONTENT_TEXT_BASE_CLASSNAME} line-through`
       : CONTENT_TEXT_BASE_CLASSNAME;
 
@@ -158,7 +158,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   const handleSubmit = async () => {
     const newTask: Partial<Task> = {
       content: newContent,
-      status: TaskStatus.ToDo,
+      taskStatus: TaskStatus.ToDo,
       taskDate: moment().day(dayOfWeek),
     };
     const addArgs: AddTaskArgs = {
@@ -226,7 +226,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   }`;
 
   return (
-    <div className={contClassName} onClick={() => console.log("hello")}>
+    <div className={contClassName}>
       <div
         className={`flex justify-between items-center bg-zinc-300 dark:bg-disc-dark-4 p-1 ${
           !isToday && "pt-2"
@@ -311,7 +311,7 @@ const Dashboard = () => {
   const submitTask = async () => {
     const newTask: Partial<Task> = {
       content: newTaskContent,
-      status: TaskStatus.ToDo,
+      taskStatus: TaskStatus.ToDo,
       taskDate: moment().day(newTaskDOW),
     };
     const addArgs: AddTaskArgs = {
