@@ -30,7 +30,6 @@ export const weekTasksState = selector<Task[]>({
   key: "weekTasksState",
   get: ({ get }) => {
     const tasks = get(userTasksState);
-    console.log(tasks);
     return tasks.filter((t) => t.taskDate.week() === moment().week());
   }
 })

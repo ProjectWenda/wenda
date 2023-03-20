@@ -1,11 +1,11 @@
 export interface DeleteTaskArgs {
   uid: string;
-  taskID: number;
+  taskID: string;
 }
 
 export interface EditTaskArgs extends Partial<ServerTask> {
   uid: string;
-  taskID: number;
+  taskID: string;
 }
 
 export interface AddTaskArgs {
@@ -23,7 +23,7 @@ export enum TaskStatus {
 }
 
 export interface Task {
-  id: number;
+  taskID: string;
   timeCreated: Moment;
   timeUpdated: Moment;
   taskDate: Moment;
@@ -32,7 +32,7 @@ export interface Task {
 }
 
 export interface ServerTask {
-  id: number;
+  taskID: string;
   timeCreated: string;
   timeUpdated: string;
   taskDate: string;
@@ -42,7 +42,7 @@ export interface ServerTask {
 
 export const tasksFromServer = (serverTasks: ServerTask[]): Task[] => {
   return serverTasks.map((t) => ({
-    id: t.id,
+    taskID: t.taskID,
     timeCreated: moment(t.timeCreated),
     timeUpdated: moment(t.timeUpdated),
     taskDate: moment(t.taskDate),
@@ -53,7 +53,7 @@ export const tasksFromServer = (serverTasks: ServerTask[]): Task[] => {
 
 export const taskToServer = (task: Task): ServerTask => {
   return {
-    id: task.id,
+    taskID: task.taskID,
     timeCreated: task.timeCreated.toISOString(),
     timeUpdated: task.timeUpdated.toISOString(),
     taskDate: task.taskDate.toISOString(),

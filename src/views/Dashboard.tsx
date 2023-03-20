@@ -1,6 +1,6 @@
 import moment from "moment";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   authUserState,
@@ -28,6 +28,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useKeyPress } from "../hooks/useKeyPress";
 import IconButton from "../components/IconButton";
+import { authUser } from "../services/auth";
 
 interface TaskItemProps {
   task: Task;
@@ -54,10 +55,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
   const handleDelete = async () => {
     const deleteArgs: DeleteTaskArgs = {
       uid,
-      taskID: task.id,
+      taskID: task.taskID,
     };
     await deleteTask(deleteArgs);
-    setTaskListState((prev) => [...prev.filter((t) => t.id !== task.id)]);
+    setTaskListState((prev) => [...prev.filter((t) => t.taskID !== task.taskID)]);
   };
 
   const handleEdit = async () => {
@@ -65,7 +66,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
     const updatedTask = await editTaskToServer(task, uid, updatedProps);
     if (updatedTask !== null) {
       const newListState = taskList.map((t) =>
-        t.id === task.id ? updatedTask : t
+        t.taskID === task.taskID ? updatedTask : t
       );
       setTaskListState(newListState);
       setEditing(false);
@@ -83,7 +84,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
       const updatedTask = await editTaskToServer(task, uid, updatedProps);
       if (updatedTask !== null) {
         const newListState = taskList.map((t) =>
-          t.id === task.id ? updatedTask : t
+          t.taskID === task.taskID ? updatedTask : t
         );
         setTaskListState(newListState);
       }
@@ -92,7 +93,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
       const updatedTask = await editTaskToServer(task, uid, updatedProps);
       if (updatedTask !== null) {
         const newListState = taskList.map((t) =>
-          t.id === task.id ? updatedTask : t
+          t.taskID === task.taskID ? updatedTask : t
         );
         setTaskListState(newListState);
       }
@@ -268,6 +269,8 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   );
 };
 
+let didInit = false;
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [newTaskContent, setNewTaskContent] = React.useState("");
@@ -276,34 +279,48 @@ const Dashboard = () => {
   const [userState, setUserState] = useRecoilState(authUserState);
   const [_, setTaskListState] = useRecoilState(userTasksState);
   const loggedIn = useRecoilValue(loggedInState);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
     "$1"
   );
 
-  // check if the user has authuid cookie. if so, initialize userState with it.
-  // otherwise, redirect to login
-  React.useEffect(() => {
-    setUserState(
-      cookieValue === "" ? null : { ...userState, authUID: cookieValue }
-    );
-    if (cookieValue === "") {
+  const tryLogin = React.useCallback(async () => {
+    if (!loggedIn) {
+      const code = searchParams.get("code");
+      if (code) {
+        const newAuthUID = await authUser(code);
+        if (newAuthUID) {
+          document.cookie = `authuid=${newAuthUID};max-age=604800;`;
+          setUserState({ authUID: newAuthUID });
+          navigate("/");
+        }
+      } else {
+        navigate("/login");
+      }
+    } else if (loggedIn && cookieValue !== userState!.authUID) {
+      document.cookie = "authuid" + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT";
       setUserState(null);
       navigate("/login");
-    } else {
-      setUserState({ authUID: cookieValue });
     }
-  }, [cookieValue]);
+  }, [searchParams, loggedIn, userState, cookieValue, setUserState, navigate]);
 
-  // if a user is authenticated, initialize their tasks into atomic state
+  const fetchData = React.useCallback(async () => {
+    if (loggedIn) {
+      const tasks = await getTasks(userState!.authUID);
+      setTaskListState(tasks);
+    }
+  }, [loggedIn, userState, setTaskListState]);
+
   React.useEffect(() => {
-    const fetchData = async () => {
-      if (loggedIn) {
-        const tasks = await getTasks(userState!.authUID);
-        setTaskListState(tasks);
-      }
-    };
+    if (!didInit) {
+      didInit = true;
+      tryLogin();
+    }
+  }, []);
+
+  React.useEffect(() => {
     fetchData();
   }, [loggedIn]);
 
