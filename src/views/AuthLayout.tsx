@@ -1,8 +1,8 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../components/LogoutButton";
 
 const AuthLayout = () => {
   const getDefaultTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
