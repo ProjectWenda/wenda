@@ -22,7 +22,12 @@ const LogoutButton = () => {
 
   return (
     <div>
-      <button className="text-white bg-disc-blue px-2 py-1" onClick={handleClick}>Logout</button>
+      <button
+        className="text-white bg-disc-blue px-2 py-1"
+        onClick={handleClick}
+      >
+        Logout
+      </button>
     </div>
   );
 };
