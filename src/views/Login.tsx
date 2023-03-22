@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { loggedInState } from "../domain/store";
+import { loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
 
 

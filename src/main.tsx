@@ -6,7 +6,6 @@ import Login from "./views/Login";
 import "./index.css";
 import { RecoilRoot } from "recoil";
 import Dashboard from "./views/Dashboard";
-import Logout from "./views/Logout";
 
 const router = createBrowserRouter([
   {
@@ -27,10 +26,6 @@ const router = createBrowserRouter([
     path: "login",
     element: <Login />,
   },
-  {
-    path: "logout",
-    element: <Logout />,
-  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
