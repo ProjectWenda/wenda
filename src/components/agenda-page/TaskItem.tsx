@@ -62,31 +62,32 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
     ? `${CONTENT_DIV_BASE_CLASSNAME} rounded-t`
     : `${CONTENT_DIV_BASE_CLASSNAME} rounded`;
 
-  const handleClick = async () => {
-    if (task.taskStatus === TaskStatus.Completed) {
-      const updatedProps: Partial<Task> = { taskStatus: TaskStatus.ToDo };
-      const updatedTask = await editTaskToServer(task, uid, updatedProps);
-      if (updatedTask !== null) {
-        const newListState = taskList.map((t) =>
-          t.taskID === task.taskID ? updatedTask : t
-        );
-        setTaskListState(newListState);
-      }
-    } else if (task.taskStatus === TaskStatus.ToDo) {
-      const updatedProps: Partial<Task> = { taskStatus: TaskStatus.Completed };
-      const updatedTask = await editTaskToServer(task, uid, updatedProps);
-      if (updatedTask !== null) {
-        const newListState = taskList.map((t) =>
-          t.taskID === task.taskID ? updatedTask : t
-        );
-        setTaskListState(newListState);
-      }
+  const checkTask = React.useCallback(async () => {
+    const newStatus =
+      task.taskStatus === TaskStatus.Completed
+        ? TaskStatus.ToDo
+        : TaskStatus.Completed;
+    const updatedProps: Partial<Task> = { taskStatus: newStatus };
+    const updatedTask = { ...task, ...updatedProps };
+    const newListState = taskList.map((t) =>
+      t.taskID === task.taskID ? updatedTask : t
+    );
+    setTaskListState(newListState);
+    await editTaskToServer(task, uid, updatedProps);
+  }, [task, taskList, uid]);
+
+  const handleClick = React.useCallback(() => {
+    if (
+      task.taskStatus === TaskStatus.Completed ||
+      task.taskStatus === TaskStatus.ToDo
+    ) {
+      checkTask();
     }
-  };
+  }, [task.taskStatus, checkTask]);
 
   const contentTextClassName =
     task.taskStatus === TaskStatus.Completed
-      ? `${CONTENT_TEXT_BASE_CLASSNAME} line-through`
+      ? `${CONTENT_TEXT_BASE_CLASSNAME} line-through opacity-50`
       : CONTENT_TEXT_BASE_CLASSNAME;
 
   return (
