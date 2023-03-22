@@ -3,9 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Outlet } from "react-router-dom";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import LogoutButton from "../components/LogoutButton";
+import { useRecoilValue } from "recoil";
+import { loggedInState } from "../store";
 
 const AuthLayout = () => {
   const getDefaultTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const loggedIn = useRecoilValue(loggedInState);
   // priority theme: local storage > system theme
   const getBaseTheme = () => { 
     // returns true if dark mode, false if light mode
@@ -40,12 +43,12 @@ const AuthLayout = () => {
                 className="text-sm"
               />
             </button>
-            <LogoutButton />
+            {loggedIn && <LogoutButton />}
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-center dark:text-white mt-3">
+        {/* <h1 className="text-3xl font-bold text-center dark:text-white mt-3">
           Wenda IMPROVED
-        </h1>
+        </h1> */}
         <div className="flex dark:text-white mx-5 my-2 h-5/6">
           <Outlet />
         </div>
