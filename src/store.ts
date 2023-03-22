@@ -31,5 +31,10 @@ export const weekTasksState = selector<Task[]>({
   get: ({ get }) => {
     const tasks = get(userTasksState);
     return tasks.filter((t) => t.taskDate.week() === moment().week());
-  }
-})
+  },
+});
+
+export const loadingState = atom<boolean>({
+  key: "loadingState",
+  default: false,
+});
