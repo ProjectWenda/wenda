@@ -33,38 +33,35 @@ const Login = () => {
       </div>
       <motion.div
         animate={{ opacity: [0, 1] }}
-        transition={{ opacity: {delay: 0.5}}}
+        transition={{ opacity: { delay: 0.5 } }}
         whileHover={{ scale: 1.5, transition: { duration: 0.1 } }}
         onHoverStart={() => setHoveringLogin(true)}
         onHoverEnd={() => setHoveringLogin(false)}
         className="dark:bg-zinc-800 bg-zinc-200 rounded-lg w-56 h-16 flex items-center justify-center"
       >
-        <AnimatePresence>
-          {!hoveringLogin && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-3xl font-bold dark:text-white text-black"
-            >
-              Login
-            </motion.span>
-          )}
-          {hoveringLogin && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Link to={redirectUrl}>
-                <button className="flex font-bold items-center gap-3 bg-disc-blue rounded-full text-white">
-                  <FontAwesomeIcon icon={faDiscord} bounce className="repeat-1"/>
-                  Login w/ Discord
-                </button>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {!hoveringLogin ? (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-3xl font-bold dark:text-white text-black"
+          >
+            Login
+          </motion.span>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Link to={redirectUrl}>
+              <motion.div className="flex h-11 w-48 font-bold items-center justify-center gap-3 bg-disc-blue rounded-full text-white">
+                <FontAwesomeIcon icon={faDiscord} bounce className="repeat-1" />
+                Login w/ Discord
+              </motion.div>
+            </Link>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
