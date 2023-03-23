@@ -20,11 +20,11 @@ const router = createBrowserRouter([
         path: "about",
         element: <div>this is a public ABOUT page.</div>,
       },
+      {
+        path: "login",
+        element: <Login />,
+      },
     ],
-  },
-  {
-    path: "login",
-    element: <Login />,
   },
 ]);
 
