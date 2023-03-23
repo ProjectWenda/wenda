@@ -8,7 +8,10 @@ import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Login = () => {
-  const redirectUrl = import.meta.env.VITE_DISCORD_AUTH_REDIRECT;
+  const inDev = import.meta.env.DEV;
+  const redirectUrl = inDev
+    ? import.meta.env.VITE_DISCORD_AUTH_REDIRECT_LOCAL
+    : import.meta.env.VITE_DISCORD_AUTH_REDIRECT;
   const loggedIn = useRecoilValue(loggedInState);
   const navigate = useNavigate();
   const [hoveringLogin, setHoveringLogin] = React.useState(false);
