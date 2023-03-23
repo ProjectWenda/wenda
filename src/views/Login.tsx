@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

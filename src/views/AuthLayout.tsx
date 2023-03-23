@@ -7,15 +7,16 @@ import { useRecoilValue } from "recoil";
 import { loggedInState } from "../store";
 
 const AuthLayout = () => {
-  const getDefaultTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const getDefaultTheme = () =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
   const loggedIn = useRecoilValue(loggedInState);
   // priority theme: local storage > system theme
-  const getBaseTheme = () => { 
+  const getBaseTheme = () => {
     // returns true if dark mode, false if light mode
     const theme = localStorage.getItem("theme");
     if (theme == null) return getDefaultTheme();
     return theme === "dark";
-  }
+  };
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(getBaseTheme());
 
   React.useEffect(() => {
@@ -46,9 +47,16 @@ const AuthLayout = () => {
             {loggedIn && <LogoutButton />}
           </div>
         </div>
-        {/* <h1 className="text-3xl font-bold text-center dark:text-white mt-3">
-          Wenda IMPROVED
-        </h1> */}
+        {loggedIn && (
+          <div className="flex w-full justify-center mt-2">
+            <span className="text-6xl font-['Poppins'] font-semibold antialiased drop-shadow-lg">
+              W
+            </span>
+            <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased drop-shadow-lg">
+              enda
+            </span>
+          </div>
+        )}
         <div className="flex dark:text-white mx-5 my-2 h-5/6">
           <Outlet />
         </div>
