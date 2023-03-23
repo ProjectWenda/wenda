@@ -21,13 +21,16 @@ const Login = () => {
 
   return (
     <div className="w-full flex items-center gap-28 flex-col">
-      <div className="mt-3">
+      <div className="mt-48">
         <motion.div
           animate={{ opacity: [0, 1], scale: [0.9, 1] }}
           transition={{ type: "spring", duration: 1, bounce: 0.55 }}
         >
-          <span className="text-8xl italic font-extrabold bg-clip-text bg-gradient-to-r from-disc-blue via-purple-300 to-disc-blue text-transparent antialiased">
-            WENDA
+          <span className="text-8xl font-['Poppins'] font-semibold antialiased drop-shadow-lg">
+            W
+          </span>
+          <span className="text-8xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased drop-shadow-lg">
+            enda
           </span>
         </motion.div>
       </div>
@@ -37,7 +40,7 @@ const Login = () => {
         whileHover={{ scale: 1.5, transition: { duration: 0.1 } }}
         onHoverStart={() => setHoveringLogin(true)}
         onHoverEnd={() => setHoveringLogin(false)}
-        className="dark:bg-zinc-800 bg-zinc-200 rounded-lg w-56 h-16 flex items-center justify-center"
+        className="dark:bg-zinc-800 bg-zinc-200 rounded-lg w-56 h-16 flex items-center justify-center shadow-lg border-disc-blue border"
       >
         {!hoveringLogin ? (
           <motion.span
