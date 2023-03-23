@@ -53,8 +53,8 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
         </div>
       </div>
       <div className="flex flex-col gap-1 mt-1 p-1">
-        {dayTasks.map((t, ind) => (
-          <TaskItem task={t} uid={uid} key={ind} canEdit={editingDay} />
+        {dayTasks.map((t) => (
+          <TaskItem task={t} uid={uid} key={t.taskID} canEdit={editingDay} />
         ))}
         {addingNewTask ? (
           <NewTaskForm
