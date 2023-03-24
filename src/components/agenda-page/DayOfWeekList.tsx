@@ -21,7 +21,6 @@ interface DayOfWeekListProps {
 }
 
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
-  const [editingDay, setEditingDay] = React.useState(false);
   const [addingNewTask, setAddingNewTask] = React.useState(false);
   const weekTasks = useRecoilValue(weekTasksState);
   const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
@@ -45,16 +44,11 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
             disabled={addingNewTask}
             onClick={!addingNewTask ? () => setAddingNewTask(true) : undefined}
           />
-          <IconButton
-            icon={editingDay ? faChevronUp : faChevronDown}
-            onClick={() => setEditingDay(!editingDay)}
-            size="sm"
-          />
         </div>
       </div>
       <div className="flex flex-col gap-1 mt-1 p-1">
         {dayTasks.map((t) => (
-          <TaskItem task={t} uid={uid} key={t.taskID} canEdit={editingDay} />
+          <TaskItem task={t} uid={uid} key={t.taskID} />
         ))}
         {addingNewTask ? (
           <NewTaskForm

@@ -41,7 +41,7 @@ const AuthLayout = () => {
             >
               <FontAwesomeIcon
                 icon={isDarkMode ? faSun : faMoon}
-                className="text-sm"
+                className="text-sm dark:text-white text-black"
               />
             </button>
             {loggedIn && <LogoutButton />}
@@ -49,7 +49,7 @@ const AuthLayout = () => {
         </div>
         {loggedIn && (
           <div className="flex w-full justify-center mt-2">
-            <span className="text-6xl font-['Poppins'] font-semibold antialiased drop-shadow-lg">
+            <span className="text-6xl font-['Poppins'] dark:text-white text-black font-semibold antialiased drop-shadow-lg">
               W
             </span>
             <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased drop-shadow-lg">
@@ -57,7 +57,7 @@ const AuthLayout = () => {
             </span>
           </div>
         )}
-        <div className="flex dark:text-white mx-5 my-2 h-5/6">
+        <div className="flex dark:text-white text-black mx-5 my-2 h-5/6">
           <Outlet />
         </div>
       </div>

@@ -4,7 +4,7 @@ export const useKeyPress = (
   keys: string[],
   callback: (e: KeyboardEvent) => void,
   node = null,
-  requireCtrl?: boolean
+  requireCtrl?: boolean,
 ) => {
   // implement the callback ref pattern
   const callbackRef = useRef(callback);
@@ -14,7 +14,7 @@ export const useKeyPress = (
 
   // handle what happens on key press
   const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
+    async (event: KeyboardEvent) => {
       // check if one of the key is part of the ones we want
       if (keys.some((key) => event.key === key) && (!requireCtrl || event.ctrlKey)) {
         event.preventDefault();

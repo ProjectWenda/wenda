@@ -149,14 +149,14 @@ const Dashboard = () => {
                 <input
                   onChange={(e) => setNewTaskContent(e.target.value)}
                   value={newTaskContent}
-                  className="rounded p-1"
+                  className="rounded p-1 dark:bg-zinc-700 bg-white"
                   placeholder="New task content.."
                   autoFocus
                 />
                 <select
                   onChange={(e) => setNewTaskDOW(+e.target.value)}
                   value={newTaskDOW}
-                  className="h-8 rounded"
+                  className="h-8 rounded dark:bg-zinc-700 bg-white"
                 >
                   <option value={0}>Sunday</option>
                   <option value={1}>Monday</option>

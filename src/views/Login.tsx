@@ -22,6 +22,8 @@ const Login = () => {
     }
   }, [loggedIn]);
 
+  console.log(redirectUrl);
+
   return (
     <div className="w-full flex items-center gap-28 flex-col">
       <div className="mt-48">
