@@ -20,7 +20,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useKeyPress } from "../hooks/useKeyPress";
 import IconButton from "../components/IconButton";
-import { authUser } from "../services/auth";
+import { authUser, getFriends } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
@@ -108,10 +108,17 @@ const Dashboard = () => {
   if (userState) {
     for (let i = 0; i < 7; i++) {
       dayOfWeekComponentsList.push(
-        <DayOfWeekList dayOfWeek={i} key={i} uid={userState!.authUID} />
+        <DayOfWeekList dayOfWeek={i} key={i} uid={userState.authUID} />
       );
     }
   }
+
+  React.useEffect(() => {
+    if (userState != null) {
+      const friends = getFriends(userState.authUID);
+      console.log(friends);
+    }
+  }, [userState])
 
   const clearCreating = () => {
     setNewTaskContent("");
