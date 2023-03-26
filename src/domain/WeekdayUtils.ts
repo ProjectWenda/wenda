@@ -7,7 +7,7 @@ export const getWeekdayName = (day: Weekday) : string => {
     case Weekday.Monday:
       return "Mon";
     case Weekday.Tuesday:
-      return "Tues";
+      return "Tue";
     case Weekday.Wednesday:
       return "Wed";
     case Weekday.Thursday:

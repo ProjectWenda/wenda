@@ -21,13 +21,13 @@ const WeekSwitcher: React.FC = () => {
 
   return (
     <div className="flex gap-2 items-center">
-      <IconButton icon={faArrowLeft} onClick={() => handleClick(true)} />
+      <IconButton className="select-none" icon={faArrowLeft} onClick={() => handleClick(true)} />
       <div>
         <span className="text-xl">Week of</span>
         <span className="text-xl font-bold"> {weekTitle}</span>
       </div>
 
-      <IconButton icon={faArrowRight} onClick={() => handleClick(false)} />
+      <IconButton className="select-none" icon={faArrowRight} onClick={() => handleClick(false)} />
     </div>
   );
 };
