@@ -113,13 +113,6 @@ const Dashboard = () => {
     }
   }
 
-  React.useEffect(() => {
-    if (userState != null) {
-      const friends = getFriends(userState.authUID);
-      console.log(friends);
-    }
-  }, [userState])
-
   const clearCreating = () => {
     setNewTaskContent("");
     setNewTaskDOW(0);
