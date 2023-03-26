@@ -23,6 +23,7 @@ import IconButton from "../components/IconButton";
 import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
+import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
 
 let didInit = false;
 
@@ -125,7 +126,7 @@ const Dashboard = () => {
     <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
       {!loading ? (
         <>
-          <div className="flex gap-3 items-center mb-3">
+          <div className="flex gap-3 items-center mb-3 justify-between">
             {!creatingItem ? (
               <div
                 className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded shadow ml-2 items-center"
@@ -170,6 +171,8 @@ const Dashboard = () => {
                 <IconButton icon={faCircleXmark} onClick={clearCreating} />
               </div>
             )}
+            <WeekSwitcher />
+            <div className="w-[107.406px]"></div> 
           </div>
           <div className="flex flex-1">{dayOfWeekComponentsList}</div>
         </>
