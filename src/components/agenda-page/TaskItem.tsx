@@ -9,7 +9,7 @@ import { useRecoilState } from "recoil";
 import { editTaskToServer } from "../../domain/TaskUtils";
 import { Task, DeleteTaskArgs, TaskStatus } from "../../schema/Task";
 import { deleteTask } from "../../services/tasks";
-import { userTasksState } from "../../store";
+import { tasksState } from "../../store";
 import IconButton from "../IconButton";
 
 interface TaskItemProps {
@@ -23,7 +23,7 @@ const CONTENT_DIV_BASE_CLASSNAME =
 const CONTENT_TEXT_BASE_CLASSNAME = "cursor-pointer w-fit";
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
-  const [taskList, setTaskListState] = useRecoilState(userTasksState);
+  const [taskList, setTaskListState] = useRecoilState(tasksState);
   const [newContent, setNewContent] = React.useState(task.content);
   const [editing, setEditing] = React.useState(false);
 

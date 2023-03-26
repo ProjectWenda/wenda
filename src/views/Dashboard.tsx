@@ -6,7 +6,7 @@ import {
   authUserState,
   loadingState,
   loggedInState,
-  userTasksState,
+  tasksState,
 } from "../store";
 import { Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
@@ -33,7 +33,7 @@ const Dashboard = () => {
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [creatingItem, setCreatingItem] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
-  const [_, setTaskListState] = useRecoilState(userTasksState);
+  const [_, setTaskListState] = useRecoilState(tasksState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const loggedIn = useRecoilValue(loggedInState);
   const [searchParams, setSearchParams] = useSearchParams();
