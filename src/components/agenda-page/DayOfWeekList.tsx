@@ -9,7 +9,7 @@ import { useRecoilValue } from "recoil";
 import { getTasksByDay } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
-import { weekTasksState } from "../../store";
+import { weekState, weekTasksState } from "../../store";
 import IconButton from "../IconButton";
 import NewTaskForm from "./NewTaskForm";
 import NewTaskPrompt from "./NewTaskPrompt";
@@ -23,12 +23,35 @@ interface DayOfWeekListProps {
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const [editingDay, setEditingDay] = React.useState(false);
   const [addingNewTask, setAddingNewTask] = React.useState(false);
+  const week = useRecoilValue(weekState);
   const weekTasks = useRecoilValue(weekTasksState);
-  const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
-  const isToday = moment().day() === dayOfWeek;
-  const contClassName = `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
-    isToday && "border-t-4 border-t-disc-blue"
-  }`;
+
+  const date = React.useMemo(
+    () => moment().week(week).day(dayOfWeek),
+    [week, dayOfWeek]
+  );
+
+  const dayTasks = React.useMemo(
+    () => getTasksByDay(weekTasks, date),
+    [weekTasks, date]
+  );
+
+  const isToday = React.useMemo(
+    () => moment().isSame(date, "date"),
+    [date]
+  );
+
+  const contClassName = React.useMemo(
+    () =>
+      `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
+        isToday && "border-t-4 border-t-disc-blue"
+      }`,
+    [isToday]
+  );
+
+  const dayOfMonthString = React.useMemo(() => {
+    return `, ${date.format("MMM. DD")}`;
+  }, [date]);
 
   return (
     <div className={contClassName}>
@@ -37,7 +60,12 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
           !isToday && "pt-2"
         }`}
       >
-        <h2 className="text-lg ml-1 font-bold">{getWeekdayName(dayOfWeek)}</h2>
+        <div className="flex gap-0">
+          <span className="text-lg ml-1 font-bold">
+            {getWeekdayName(dayOfWeek)}
+          </span>
+          <span className="text-lg">{dayOfMonthString}</span>
+        </div>
         <div className="flex gap-3 mr-1">
           <IconButton
             icon={faCirclePlus}

@@ -38,3 +38,8 @@ export const loadingState = atom<boolean>({
   key: "loadingState",
   default: false,
 });
+
+export const weekState = atom<number>({
+  key: "weekState",
+  default: moment().week(),
+})
