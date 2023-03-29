@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import React from "react";
+import { assertIsNode } from "../domain/assertions";
 import { getUser, getUserImageColor } from "../services/discord";
 import LogoutButton from "./LogoutButton";
 import ThemeToggle from "./ThemeToggle";
@@ -13,6 +14,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ uid }) => {
   const [showMenu, setShowMenu] = React.useState(false);
   const [userName, setUserName] = React.useState();
   const [imageColor, setImageColor] = React.useState<string>();
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -31,31 +34,61 @@ const UserMenu: React.FC<UserMenuProps> = ({ uid }) => {
     <LogoutButton userName={userName} />,
   ];
 
+  const closeOpenMenus = React.useCallback(
+    ({ target }: MouseEvent) => {
+      assertIsNode(target);
+      if (
+        triggerRef.current &&
+        menuRef.current &&
+        showMenu &&
+        !triggerRef.current.contains(target) &&
+        !menuRef.current.contains(target)
+      ) {
+        setShowMenu(false);
+      }
+    },
+    [showMenu, triggerRef]
+  );
+
+  React.useEffect(() => {
+    document.addEventListener("click", closeOpenMenus);
+    return () => {
+      document.removeEventListener("click", closeOpenMenus);
+    };
+  }, [showMenu]);
+
   return userName && imageColor ? (
     <div className="relative inline-block cursor-pointer">
-      <div onClick={() => setShowMenu(!showMenu)}>
+      <motion.div
+        whileHover={{ scale: 1.1 }}
+        onClick={() => setShowMenu(!showMenu)}
+        ref={triggerRef}
+      >
         <UserImage uid={uid} />
-      </div>
+      </motion.div>
       {showMenu && (
         <motion.div
           animate={{ opacity: [0, 1] }}
-          className="dark:bg-neutral-700 bg-zinc-100 shadow-lg dark:shadow-disc-dark-4 w-fit h-fit rounded absolute block right-0 mt-2 z-10"
+          className="dark:bg-neutral-700 bg-zinc-100 shadow-lg dark:shadow-disc-dark-4 w-fit h-fit rounded absolute block right-0 mt-2 z-10 cursor-default"
           style={{
             borderWidth: 1,
             borderColor: imageColor,
             boxShadow: `0 1px 10px ${imageColor}`,
           }}
+          ref={menuRef}
         >
           <div
             id="menu-contents"
             className="flex flex-col items-left p-2 gap-3"
           >
-            {menuEntries.map((el) => {
+            {menuEntries.map((el, ind) => {
               return (
-                <div className="w-full border-b last:border-none last:pb-0 pb-3 border-neutral-600"
+                <div
+                  className="w-full border-b last:border-none last:pb-0 pb-3 border-neutral-600"
                   style={{
                     borderColor: imageColor,
                   }}
+                  key={ind}
                 >
                   {el}
                 </div>
