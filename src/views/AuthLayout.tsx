@@ -32,7 +32,7 @@ const AuthLayout = () => {
           <div className="w-[175px]"></div>
         {loggedIn && (
           <div className="flex w-full justify-center mt-2">
-            <span className="text-6xl font-['Poppins'] font-semibold antialiased">
+            <span className="text-6xl font-['Poppins'] antialiased">
               W
             </span>
             <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased">
