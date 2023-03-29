@@ -1,4 +1,5 @@
 import axios from "axios";
+import { FastAverageColor } from "fast-average-color";
 
 const inDev = import.meta.env.DEV;
 const baseUrl = inDev ? import.meta.env.VITE_LOCAL_BACKEND_URL : import.meta.env.VITE_BACKEND_URL;
@@ -15,6 +16,16 @@ export const getUserImage = async (uid: string) => {
   const avatarId = userRes.avatar;
   const userId = userRes.id;
   return `${avatarBaseUrl}/${userId}/${avatarId}.png`
+}
+
+export const getUserImageColor = async (uid: string) => {
+  const fac = new FastAverageColor();
+  const userImageUrl = await getUserImage(uid);
+  const userImage = new Image();
+  userImage.crossOrigin = 'anonymous';
+  userImage.src = userImageUrl;
+  const averageColor = await fac.getColorAsync(userImage);
+  return averageColor;
 }
 
 

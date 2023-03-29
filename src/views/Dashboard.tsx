@@ -20,7 +20,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useKeyPress } from "../hooks/useKeyPress";
 import IconButton from "../components/IconButton";
-import { authUser, getFriends } from "../services/auth";
+import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";

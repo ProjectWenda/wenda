@@ -3,24 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Outlet } from "react-router-dom";
 import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import LogoutButton from "../components/LogoutButton";
-import { useRecoilValue } from "recoil";
-import { authUserState, loggedInState } from "../store";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { authUserState, loggedInState, themeState } from "../store";
 import UserImage from "../components/UserImage";
 import UserTag from "../components/UserTag";
+import UserMenu from "../components/UserMenu";
 
 const AuthLayout = () => {
-  const getDefaultTheme = () =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
   const loggedIn = useRecoilValue(loggedInState);
   const authUser = useRecoilValue(authUserState);
-  // priority theme: local storage > system theme
-  const getBaseTheme = () => {
-    // returns true if dark mode, false if light mode
-    const theme = localStorage.getItem("theme");
-    if (theme == null) return getDefaultTheme();
-    return theme === "dark";
-  };
-  const [isDarkMode, setIsDarkMode] = React.useState<boolean>(getBaseTheme());
+  const [isDarkMode, setIsDarkMode] = useRecoilState(themeState);
 
   React.useEffect(() => {
     //save theme to local storage
@@ -40,26 +32,17 @@ const AuthLayout = () => {
           <div className="w-[175px]"></div>
         {loggedIn && (
           <div className="flex w-full justify-center mt-2">
-            <span className="text-6xl font-['Poppins'] font-semibold antialiased drop-shadow-2xl">
+            <span className="text-6xl font-['Poppins'] font-semibold antialiased">
               W
             </span>
-            <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased drop-shadow-2xl">
+            <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased">
               enda
             </span>
           </div>
         )}
           <div className="flex items-center gap-2 mr-4">
-            {/* <button
-              className="px-1.5 py-0 bg-zinc-100 dark:bg-zinc-800 dark:text-white"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-            >
-              <FontAwesomeIcon
-                icon={isDarkMode ? faSun : faMoon}
-                className="text-sm"
-              />
-            </button> */}
             {loggedIn && <UserTag uid={authUser!.authUID} />}
-            {loggedIn && <UserImage uid={authUser!.authUID} />}
+            {loggedIn && <UserMenu uid={authUser!.authUID }/>}
           </div>
         </div>
         <div className="flex dark:text-white mx-5 my-2 h-5/6">
