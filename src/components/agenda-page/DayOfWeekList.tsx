@@ -61,7 +61,10 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
           !isToday && "pt-2"
         }`}
       >
-        <h2 className="text-lg ml-1 font-bold">{getWeekdayName(dayOfWeek)}</h2>
+        <div className="text-lg flex gap-0">
+        <p className="ml-1 font-bold">{getWeekdayName(dayOfWeek)}</p>
+        <p>{dayOfMonthString}</p>
+        </div>
         <div className="flex gap-3 mr-1">
           <IconButton
             icon={faCirclePlus}
