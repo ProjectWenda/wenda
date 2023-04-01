@@ -46,19 +46,19 @@ export const getWeekdayFromDay = (day: string) : Weekday => {
 export const getWeekdayName = (day: Weekday) : string => {
   switch (day) {
     case Weekday.Sunday:
-      return "Sunday";
+      return "Sun";
     case Weekday.Monday:
-      return "Monday";
+      return "Mon";
     case Weekday.Tuesday:
-      return "Tuesday";
+      return "Tue";
     case Weekday.Wednesday:
-      return "Wednesday";
+      return "Wed";
     case Weekday.Thursday:
-      return "Thursday";
+      return "Thu";
     case Weekday.Friday:
-      return "Friday";
+      return "Fri";
     case Weekday.Saturday:
-      return "Saturday";
+      return "Sat";
     default:
       return "Unknown";
   }

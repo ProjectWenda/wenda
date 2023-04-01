@@ -1,9 +1,9 @@
+import { Moment } from "moment";
 import { EditTaskArgs, Task, taskToServer } from "../schema/Task";
-import { Weekday } from "../schema/Weekday";
 import { editTask } from "../services/tasks";
 
-export const getTasksByDay = (tasks: Task[], day: Weekday): Task[] => {
-  return tasks.filter((t) => t.taskDate.day() === day);
+export const getTasksByDay = (tasks: Task[], day: Moment): Task[] => {
+  return tasks.filter((t) => t.taskDate.isSame(day, "date"));
 };
 
 export const getTasksByNotDay = (tasks: Task[], day: Weekday): Task[] => {

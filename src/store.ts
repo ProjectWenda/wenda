@@ -8,6 +8,16 @@ const authCookie = document.cookie.replace(
   "$1"
 );
 
+const getDefaultTheme = () =>
+window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const getBaseTheme = () => {
+  // returns true if dark mode, false if light mode
+  const theme = localStorage.getItem("theme");
+  if (theme == null) return getDefaultTheme();
+  return theme === "dark";
+};
+
 export const authUserState = atom<User | null>({
   key: "authUserState",
   default: authCookie === "" ? null : { authUID: authCookie },
@@ -39,6 +49,15 @@ export const loadingState = atom<boolean>({
   default: false,
 });
 
+export const weekState = atom<number>({
+  key: "weekState",
+  default: moment().week(),
+})
+
+export const themeState = atom<boolean>({
+  key: "themeState",
+  default: getBaseTheme(),
+});
 export const draggingState = atom<boolean>({
   key: "draggingState",
   default: false,

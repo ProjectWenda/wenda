@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  input, select {
+    @apply dark:bg-zinc-700 bg-white
+  }
+  * {
+    @apply dark:text-white text-black
+  }
+  button {
+    @apply focus:outline-none;
+  }
+  a {
+    @apply outline-none;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

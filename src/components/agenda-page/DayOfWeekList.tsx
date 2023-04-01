@@ -13,7 +13,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { getTasksByDay, getTasksByNotDay } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
-import { draggingState, userTasksState, weekTasksState } from "../../store";
+import { draggingState, userTasksState, weekState, weekTasksState } from "../../store";
 import IconButton from "../IconButton";
 import NewTaskForm from "./NewTaskForm";
 import NewTaskPrompt from "./NewTaskPrompt";
@@ -26,13 +26,36 @@ interface DayOfWeekListProps {
 
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const [addingNewTask, setAddingNewTask] = React.useState(false);
+  const week = useRecoilValue(weekState);
   const weekTasks = useRecoilValue(weekTasksState);
   const dragging = useRecoilValue(draggingState);
-  const dayTasks = getTasksByDay(weekTasks, dayOfWeek);
-  const isToday = moment().day() === dayOfWeek;
-  const contClassName = `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
-    isToday && "border-t-4 border-t-disc-blue"
-  }`;
+
+  const date = React.useMemo(
+    () => moment().week(week).day(dayOfWeek),
+    [week, dayOfWeek]
+  );
+
+  const dayTasks = React.useMemo(
+    () => getTasksByDay(weekTasks, date),
+    [weekTasks, date]
+  );
+
+  const isToday = React.useMemo(
+    () => moment().isSame(date, "date"),
+    [date]
+  );
+
+  const contClassName = React.useMemo(
+    () =>
+      `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
+        isToday && "border-t-4 border-t-disc-blue"
+      }`,
+    [isToday]
+  );
+
+  const dayOfMonthString = React.useMemo(() => {
+    return `, ${date.format("MMM. DD")}`;
+  }, [date]);
 
   return (
     <Droppable droppableId={getWeekdayName(dayOfWeek)} type="COLUMN">
