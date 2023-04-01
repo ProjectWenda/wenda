@@ -40,10 +40,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
     [tasks, date]
   );
 
-  const isToday = React.useMemo(
-    () => moment().isSame(date, "date"),
-    [date]
-  );
+  const isToday = React.useMemo(() => moment().isSame(date, "date"), [date]);
 
   const contClassName = React.useMemo(
     () =>
@@ -58,53 +55,49 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   }, [date]);
 
   return (
-    <Droppable droppableId={getWeekdayName(dayOfWeek)} type="COLUMN">
-      {(droppableProvided: DroppableProvided) => (
-        <div
-          className={contClassName}
-          ref={droppableProvided.innerRef}
-          {...droppableProvided.droppableProps}
-        >
+    <div className={contClassName}>
+      <div
+        className={`flex justify-between items-center bg-zinc-300 dark:bg-disc-dark-4 p-1 ${
+          !isToday && "pt-2"
+        }`}
+      >
+        <h2 className="text-lg ml-1 font-bold">{getWeekdayName(dayOfWeek)}</h2>
+        <div className="flex gap-3 mr-1">
+          <IconButton
+            icon={faCirclePlus}
+            size="sm"
+            disabled={addingNewTask}
+            onClick={!addingNewTask ? () => setAddingNewTask(true) : undefined}
+          />
+        </div>
+      </div>
+      <Droppable droppableId={getWeekdayName(dayOfWeek)} type="COLUMN">
+        {(droppableProvided: DroppableProvided) => (
           <div
-            className={`flex justify-between items-center bg-zinc-300 dark:bg-disc-dark-4 p-1 ${
-              !isToday && "pt-2"
-            }`}
+            className="flex flex-col gap-1 mt-1 p-1"
+            ref={droppableProvided.innerRef}
+            {...droppableProvided.droppableProps}
           >
-            <h2 className="text-lg ml-1 font-bold">
-              {getWeekdayName(dayOfWeek)}
-            </h2>
-            <div className="flex gap-3 mr-1">
-              <IconButton
-                icon={faCirclePlus}
-                size="sm"
-                disabled={addingNewTask}
-                onClick={
-                  !addingNewTask ? () => setAddingNewTask(true) : undefined
-                }
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 mt-1 p-1">
             {dayTasks.map((t, index) => (
               <TaskItem task={t} index={index} uid={uid} key={t.taskID} />
             ))}
+            {addingNewTask ? (
+              <NewTaskForm
+                setAddingNewTask={setAddingNewTask}
+                dayOfWeek={dayOfWeek}
+                uid={uid}
+              />
+            ) : !dragging ? (
+              <NewTaskPrompt
+                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in"
+                setAddingNewTask={setAddingNewTask}
+              />
+            ) : null}
+            {droppableProvided.placeholder}
           </div>
-          {addingNewTask ? (
-            <NewTaskForm
-              setAddingNewTask={setAddingNewTask}
-              dayOfWeek={dayOfWeek}
-              uid={uid}
-            />
-          ) : !dragging ? (
-            <NewTaskPrompt
-              className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in"
-              setAddingNewTask={setAddingNewTask}
-            />
-          ) : null}
-          {droppableProvided.placeholder}
-        </div>
-      )}
-    </Droppable>
+        )}
+      </Droppable>
+    </div>
   );
 };
 
