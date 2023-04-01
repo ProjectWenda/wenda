@@ -4,12 +4,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import React from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import { Task, TaskStatus, AddTaskArgs } from "../../schema/Task";
 import { Weekday } from "../../schema/Weekday";
 import { addTask } from "../../services/tasks";
-import { userTasksState } from "../../store";
+import { tasksState, weekState } from "../../store";
 import IconButton from "../IconButton";
 
 interface NewTaskFormProps {
@@ -23,8 +23,9 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   dayOfWeek,
   uid,
 }) => {
-  const [_, setTaskListState] = useRecoilState(userTasksState);
+  const [_, setTaskListState] = useRecoilState(tasksState);
   const [newContent, setNewContent] = React.useState("");
+  const week = useRecoilValue(weekState);
 
   const stopAddingTask = () => {
     setAddingNewTask(false);
@@ -35,7 +36,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
     const newTask: Partial<Task> = {
       content: newContent,
       taskStatus: TaskStatus.ToDo,
-      taskDate: moment().day(dayOfWeek),
+      taskDate: moment().week(week).day(dayOfWeek),
     };
     const addArgs: AddTaskArgs = {
       uid,

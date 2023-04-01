@@ -13,7 +13,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { getTasksByDay, getTasksByNotDay } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
-import { draggingState, userTasksState, weekState, weekTasksState } from "../../store";
+import { draggingState, tasksState, weekState, weekTasksState } from "../../store";
 import IconButton from "../IconButton";
 import NewTaskForm from "./NewTaskForm";
 import NewTaskPrompt from "./NewTaskPrompt";
@@ -27,7 +27,7 @@ interface DayOfWeekListProps {
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const [addingNewTask, setAddingNewTask] = React.useState(false);
   const week = useRecoilValue(weekState);
-  const weekTasks = useRecoilValue(weekTasksState);
+  const tasks = useRecoilValue(tasksState);
   const dragging = useRecoilValue(draggingState);
 
   const date = React.useMemo(
@@ -36,8 +36,8 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   );
 
   const dayTasks = React.useMemo(
-    () => getTasksByDay(weekTasks, date),
-    [weekTasks, date]
+    () => getTasksByDay(tasks, date),
+    [tasks, date]
   );
 
   const isToday = React.useMemo(
