@@ -77,13 +77,15 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
       <Droppable droppableId={getWeekdayName(dayOfWeek)} type="COLUMN">
         {(droppableProvided: DroppableProvided) => (
           <div
-            className="flex flex-col gap-1 mt-1 p-1"
             ref={droppableProvided.innerRef}
             {...droppableProvided.droppableProps}
           >
+            <div className="flex flex-col mt-2">
             {dayTasks.map((t, index) => (
               <TaskItem task={t} index={index} uid={uid} key={t.taskID} />
             ))}
+            </div>
+
             {addingNewTask ? (
               <NewTaskForm
                 setAddingNewTask={setAddingNewTask}
@@ -92,7 +94,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
               />
             ) : !dragging ? (
               <NewTaskPrompt
-                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in"
+                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in m-1"
                 setAddingNewTask={setAddingNewTask}
               />
             ) : null}
