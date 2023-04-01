@@ -51,7 +51,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   useKeyPress(["Escape"], stopAddingTask);
 
   return (
-    <div className="flex flex-col m-1">
+    <div className="flex flex-col mx-1">
       <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
         <input
           value={newContent}

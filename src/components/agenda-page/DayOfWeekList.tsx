@@ -94,7 +94,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
               />
             ) : !dragging ? (
               <NewTaskPrompt
-                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in m-1"
+                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in mx-1"
                 setAddingNewTask={setAddingNewTask}
               />
             ) : null}
