@@ -13,7 +13,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { getTasksByDay, getTasksByNotDay } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
-import { draggingState, tasksState, weekState, weekTasksState } from "../../store";
+import { draggingState, tasksState, weekState } from "../../store";
 import IconButton from "../IconButton";
 import NewTaskForm from "./NewTaskForm";
 import NewTaskPrompt from "./NewTaskPrompt";

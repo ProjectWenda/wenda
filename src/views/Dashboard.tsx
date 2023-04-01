@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -9,7 +9,6 @@ import {
   loggedInState,
   tasksState,
   weekState,
-  weekTasksState,
 } from "../store";
 import { Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
@@ -27,7 +26,12 @@ import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
-import { DragDropContext, Droppable, DroppableProvided, DropResult } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Droppable,
+  DroppableProvided,
+  DropResult,
+} from "@hello-pangea/dnd";
 import { getTasksByDay, getTasksByNotDay } from "../domain/TaskUtils";
 import { getFullWeekdayName, getWeekdayFromDay } from "../domain/WeekdayUtils";
 
@@ -44,10 +48,9 @@ const Dashboard = () => {
   const loggedIn = useRecoilValue(loggedInState);
   const [searchParams, setSearchParams] = useSearchParams();
   const [dragging, setDragging] = useRecoilState(draggingState);
-  const weekTasks = useRecoilValue(weekTasksState);
   const currentWeek = useRecoilValue(weekState);
-  const getDayTasks = (dayOfWeek: Weekday) => getTasksByDay(weekTasks, moment().week(currentWeek).day(dayOfWeek));
-  const getRestOfWeekTasks = (dayOfWeek: Weekday) => getTasksByNotDay(weekTasks, moment().week(currentWeek).day(dayOfWeek));
+  const getDayTasks = (date: Moment) => getTasksByDay(taskList, date);
+  const getRestOfWeekTasks = (date: Moment) => getTasksByNotDay(taskList, date);
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -135,30 +138,39 @@ const Dashboard = () => {
       return;
     }
 
-    const sourceDay : Weekday = getWeekdayFromDay(result.source.droppableId);
-    const destinationDay : Weekday = getWeekdayFromDay(result.destination.droppableId);
+    const sourceDate = moment()
+      .week(currentWeek)
+      .day(getWeekdayFromDay(result.source.droppableId));
+    const destinationDate = moment()
+      .week(currentWeek)
+      .day(getWeekdayFromDay(result.destination.droppableId));
 
-    if (sourceDay === destinationDay) {
-      const dayTasks = getDayTasks(sourceDay);
-      const restOfWeekTasks = getRestOfWeekTasks(sourceDay);
-    
+    if (sourceDate.isSame(destinationDate, "date")) {
+      const dayTasks = getDayTasks(sourceDate);
+      const restOfWeekTasks = getRestOfWeekTasks(sourceDate);
+
       const items = [...dayTasks];
       const [reorderedItem] = items.splice(result.source.index, 1);
       items.splice(result.destination.index, 0, reorderedItem);
 
-      console.log('dayTasks', dayTasks, 'restOfWeekTasks', restOfWeekTasks, 'items', items);
-      console.log('setting', [...items, ...restOfWeekTasks])
-
       setTaskListState([...items, ...restOfWeekTasks]);
     } else {
-      const sourceDayTasks = getDayTasks(sourceDay);
-      const destinationDayTasks = getDayTasks(destinationDay);
-      const restOfWeekTasks = taskList.filter(t => t.taskDate.day() !== sourceDay && t.taskDate.day() !== destinationDay);
+      const sourceDayTasks = getDayTasks(sourceDate);
+      const destinationDayTasks = getDayTasks(destinationDate);
+      const restOfTasks = getRestOfWeekTasks(sourceDate).filter(
+        (t) => !t.taskDate.isSame(destinationDate, "date")
+      );
       const reorderedItem = sourceDayTasks.splice(result.source.index, 1)[0];
-      const newDate = moment().day(destinationDay);
-      const updatedItem = {...reorderedItem, taskDate: newDate};
+      const newDate = moment()
+        .week(currentWeek)
+        .day(getWeekdayFromDay(result.destination.droppableId));
+      const updatedItem = { ...reorderedItem, taskDate: newDate };
       destinationDayTasks.splice(result.destination.index, 0, updatedItem);
-      setTaskListState([...destinationDayTasks, ...sourceDayTasks, ...restOfWeekTasks]);
+      setTaskListState([
+        ...destinationDayTasks,
+        ...sourceDayTasks,
+        ...restOfTasks,
+      ]);
     }
   };
   const clearCreating = () => {
@@ -220,12 +232,10 @@ const Dashboard = () => {
               </div>
             )}
             <WeekSwitcher />
-            <div className="w-[107.406px]"></div> 
+            <div className="w-[107.406px]"></div>
           </div>
           <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-            <div className="flex flex-1">
-              {dayOfWeekComponentsList}
-            </div>
+            <div className="flex flex-1">{dayOfWeekComponentsList}</div>
           </DragDropContext>
         </>
       ) : (
