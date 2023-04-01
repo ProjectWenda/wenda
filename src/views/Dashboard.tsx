@@ -8,6 +8,7 @@ import {
   loadingState,
   loggedInState,
   userTasksState,
+  weekState,
   weekTasksState,
 } from "../store";
 import { Task, TaskStatus } from "../schema/Task";
@@ -44,9 +45,9 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dragging, setDragging] = useRecoilState(draggingState);
   const weekTasks = useRecoilValue(weekTasksState);
-  // const currentWeek = useRecoilValue(weekState)
-  const getDayTasks = (dayOfWeek: Weekday) => getTasksByDay(weekTasks, dayOfWeek);
-  const getRestOfWeekTasks = (dayOfWeek: Weekday) => getTasksByNotDay(weekTasks, dayOfWeek);
+  const currentWeek = useRecoilValue(weekState);
+  const getDayTasks = (dayOfWeek: Weekday) => getTasksByDay(weekTasks, moment().week(currentWeek).day(dayOfWeek));
+  const getRestOfWeekTasks = (dayOfWeek: Weekday) => getTasksByNotDay(weekTasks, moment().week(currentWeek).day(dayOfWeek));
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -144,6 +145,10 @@ const Dashboard = () => {
       const items = [...dayTasks];
       const [reorderedItem] = items.splice(result.source.index, 1);
       items.splice(result.destination.index, 0, reorderedItem);
+
+      console.log('dayTasks', dayTasks, 'restOfWeekTasks', restOfWeekTasks, 'items', items);
+      console.log('setting', [...items, ...restOfWeekTasks])
+
       setTaskListState([...items, ...restOfWeekTasks]);
     } else {
       const sourceDayTasks = getDayTasks(sourceDay);

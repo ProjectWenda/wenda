@@ -22,21 +22,20 @@ export const getFullWeekdayName = (day: Weekday) : string => {
 }
 
 export const getWeekdayFromDay = (day: string) : Weekday => {
-  console.log(day);
   switch (day) {
-    case "Sunday":
+    case "Sun":
       return Weekday.Sunday;
-    case "Monday":
+    case "Mon":
       return Weekday.Monday;
-    case "Tuesday":
+    case "Tue":
       return Weekday.Tuesday;
-    case "Wednesday":
+    case "Wed":
       return Weekday.Wednesday;
-    case "Thursday":
+    case "Thu":
       return Weekday.Thursday;
-    case "Friday":
+    case "Fri":
       return Weekday.Friday;
-    case "Saturday":
+    case "Sat":
       return Weekday.Saturday;
     default:
       return Weekday.Sunday;
