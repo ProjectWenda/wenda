@@ -8,17 +8,19 @@ import { userTasksState } from "../../store";
 import IconButton from "../IconButton";
 import { motion } from "framer-motion";
 import { useKeyPress } from "../../hooks/useKeyPress";
+import { Draggable } from "@hello-pangea/dnd";
 
 interface TaskItemProps {
   task: Task;
   uid: string;
+  index: number;
 }
 
 const CONTENT_DIV_BASE_CLASSNAME =
   "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow rounded";
 const CONTENT_TEXT_BASE_CLASSNAME = "w-fit cursor-pointer";
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
   const [taskList, setTaskListState] = useRecoilState(userTasksState);
   const [newContent, setNewContent] = React.useState(task.content);
   const [editing, setEditing] = React.useState(false);
@@ -74,7 +76,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
     if (!editing) return;
     setEditing(false);
     setNewContent(task.content);
-  }, [editing])
+  }, [editing]);
 
   const contentTextClassName =
     task.taskStatus === TaskStatus.Completed
@@ -90,41 +92,47 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid }) => {
   useKeyPress(["Escape"], cancelEditing);
 
   return (
-    <motion.div
-      onHoverStart={() => setHoveringTask(true)}
-      onHoverEnd={() => setHoveringTask(false)}
-      className={CONTENT_DIV_BASE_CLASSNAME}
-      onDoubleClick={() => setEditing(true)}
-    >
-      {editing ? (
-        <div className="flex items-center gap-1">
-          <input
-            onChange={(e) => setNewContent(e.target.value)}
-            value={newContent}
-            className="pl-1 rounded dark:bg-zinc-700 bg-white"
-            autoFocus
-          />
-          <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
-        </div>
-      ) : (
-        <div className="flex justify-between items-center">
-          <p className={contentTextClassName} onClick={handleClick}>
-            {task.content}
-          </p>
-          <motion.div
-            animate={hoveringTask ? "shown" : "hidden"}
-            variants={deleteButtonVariants}
-          >
-            <IconButton
-              icon={faTrash}
-              className="text-zinc-500"
-              size="sm"
-              onClick={handleDelete}
-            />
-          </motion.div>
-        </div>
+    <Draggable draggableId={task.taskID} index={index}>
+      {(draggableProvided) => (
+        <motion.div
+          onHoverStart={() => setHoveringTask(true)}
+          onHoverEnd={() => setHoveringTask(false)}
+          className={CONTENT_DIV_BASE_CLASSNAME}
+          onDoubleClick={() => setEditing(true)}
+          ref={draggableProvided.innerRef}
+          {...draggableProvided.draggableProps}
+        >
+          {editing ? (
+            <div className="flex items-center gap-1">
+              <input
+                onChange={(e) => setNewContent(e.target.value)}
+                value={newContent}
+                className="pl-1 rounded dark:bg-zinc-700 bg-white"
+                autoFocus
+              />
+              <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
+            </div>
+          ) : (
+            <div className="flex justify-between items-center" {...draggableProvided.dragHandleProps}>
+              <p className={contentTextClassName} onClick={handleClick}>
+                {task.content}
+              </p>
+              <motion.div
+                animate={hoveringTask ? "shown" : "hidden"}
+                variants={deleteButtonVariants}
+              >
+                <IconButton
+                  icon={faTrash}
+                  className="text-zinc-500"
+                  size="sm"
+                  onClick={handleDelete}
+                />
+              </motion.div>
+            </div>
+          )}
+        </motion.div>
       )}
-    </motion.div>
+    </Draggable>
   );
 };
 

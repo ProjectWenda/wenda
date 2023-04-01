@@ -4,9 +4,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   authUserState,
+  draggingState,
   loadingState,
   loggedInState,
   userTasksState,
+  weekTasksState,
 } from "../store";
 import { Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
@@ -23,6 +25,9 @@ import IconButton from "../components/IconButton";
 import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
+import { DragDropContext, Droppable, DroppableProvided, DropResult } from "@hello-pangea/dnd";
+import { getTasksByDay, getTasksByNotDay } from "../domain/TaskUtils";
+import { getFullWeekdayName, getWeekdayFromDay } from "../domain/WeekdayUtils";
 
 let didInit = false;
 
@@ -32,10 +37,15 @@ const Dashboard = () => {
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [creatingItem, setCreatingItem] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
-  const [_, setTaskListState] = useRecoilState(userTasksState);
+  const [taskList, setTaskListState] = useRecoilState(userTasksState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const loggedIn = useRecoilValue(loggedInState);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [dragging, setDragging] = useRecoilState(draggingState);
+  const weekTasks = useRecoilValue(weekTasksState);
+  // const currentWeek = useRecoilValue(weekState)
+  const getDayTasks = (dayOfWeek: Weekday) => getTasksByDay(weekTasks, dayOfWeek);
+  const getRestOfWeekTasks = (dayOfWeek: Weekday) => getTasksByNotDay(weekTasks, dayOfWeek);
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -100,7 +110,7 @@ const Dashboard = () => {
     setCreatingItem(false);
   };
 
-  const dayOfWeekComponentsList = [];
+  const dayOfWeekComponentsList: Array<JSX.Element> = [];
 
   // we need to recheck userState here because
   // it's not guaranteed to be initialized
@@ -112,6 +122,39 @@ const Dashboard = () => {
     }
   }
 
+  const onDragStart = () => {
+    setDragging(true);
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    setDragging(false);
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const sourceDay : Weekday = getWeekdayFromDay(result.source.droppableId);
+    const destinationDay : Weekday = getWeekdayFromDay(result.destination.droppableId);
+
+    if (sourceDay === destinationDay) {
+      const dayTasks = getDayTasks(sourceDay);
+      const restOfWeekTasks = getRestOfWeekTasks(sourceDay);
+    
+      const items = [...dayTasks];
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+      setTaskListState([...items, ...restOfWeekTasks]);
+    } else {
+      const sourceDayTasks = getDayTasks(sourceDay);
+      const destinationDayTasks = getDayTasks(destinationDay);
+      const restOfWeekTasks = taskList.filter(t => t.taskDate.day() !== sourceDay && t.taskDate.day() !== destinationDay);
+      const reorderedItem = sourceDayTasks.splice(result.source.index, 1)[0];
+      const newDate = moment().day(destinationDay);
+      const updatedItem = {...reorderedItem, taskDate: newDate};
+      destinationDayTasks.splice(result.destination.index, 0, updatedItem);
+      setTaskListState([...destinationDayTasks, ...sourceDayTasks, ...restOfWeekTasks]);
+    }
+  };
   const clearCreating = () => {
     setNewTaskContent("");
     setNewTaskDOW(0);
@@ -171,7 +214,11 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-          <div className="flex flex-1">{dayOfWeekComponentsList}</div>
+          <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
+            <div className="flex flex-1">
+              {dayOfWeekComponentsList}
+            </div>
+          </DragDropContext>
         </>
       ) : (
         <div className="flex grow items-center justify-center">

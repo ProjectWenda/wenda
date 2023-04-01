@@ -38,3 +38,8 @@ export const loadingState = atom<boolean>({
   key: "loadingState",
   default: false,
 });
+
+export const draggingState = atom<boolean>({
+  key: "draggingState",
+  default: false,
+})

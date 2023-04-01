@@ -6,6 +6,10 @@ export const getTasksByDay = (tasks: Task[], day: Weekday): Task[] => {
   return tasks.filter((t) => t.taskDate.day() === day);
 };
 
+export const getTasksByNotDay = (tasks: Task[], day: Weekday): Task[] => {
+  return tasks.filter((t) => t.taskDate.day() !== day);
+}
+
 export const editTaskToServer = async (
   task: Task,
   uid: string,
