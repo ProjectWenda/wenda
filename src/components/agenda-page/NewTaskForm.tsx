@@ -6,11 +6,12 @@ import moment from "moment";
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useKeyPress } from "../../hooks/useKeyPress";
-import { Task, TaskStatus, AddTaskArgs } from "../../schema/Task";
+import { Task, TaskStatus, AddTaskArgs, DayTasks } from "../../schema/Task";
 import { Weekday } from "../../schema/Weekday";
 import { addTask } from "../../services/tasks";
 import { tasksState, weekState } from "../../store";
 import IconButton from "../IconButton";
+import { getTasksByDate } from "../../domain/TaskUtils";
 
 interface NewTaskFormProps {
   setAddingNewTask: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,7 +24,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   dayOfWeek,
   uid,
 }) => {
-  const [_, setTaskListState] = useRecoilState(tasksState);
+  const [dayTasks, setDayTasks] = useRecoilState(tasksState);
   const [newContent, setNewContent] = React.useState("");
   const week = useRecoilValue(weekState);
 
@@ -33,17 +34,24 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   };
 
   const handleSubmit = async () => {
+    const newTaskDate = moment().week(week).day(dayOfWeek);
     const newTask: Partial<Task> = {
       content: newContent,
       taskStatus: TaskStatus.ToDo,
-      taskDate: moment().week(week).day(dayOfWeek),
+      taskDate: newTaskDate,
     };
     const addArgs: AddTaskArgs = {
       uid,
       taskData: newTask,
     };
     const newTaskRes = await addTask(addArgs);
-    setTaskListState((prev) => [...prev, newTaskRes]);
+    const newDayTasks : DayTasks = {
+      ...dayTasks,
+      [newTaskDate.format("YYYY-MM-DD")] : {
+        tasks: [...getTasksByDate(dayTasks, newTaskDate), newTaskRes]
+      }
+    }
+    setDayTasks(newDayTasks);
     stopAddingTask();
   };
 

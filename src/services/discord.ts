@@ -1,26 +1,26 @@
 import axios from "axios";
 import { FastAverageColor } from "fast-average-color";
+import { DiscordUser, userFromServer } from "../schema/User";
 
 const inDev = import.meta.env.DEV;
 const baseUrl = inDev ? import.meta.env.VITE_LOCAL_BACKEND_URL : import.meta.env.VITE_BACKEND_URL;
 const avatarBaseUrl = 'https://cdn.discordapp.com/avatars';
 
 
-export const getUser = async (uid: string) => {
+export const getUser = async (uid: string) : Promise<DiscordUser> => {
   const response = await axios.get(`${baseUrl}/user`, { params: { uid } });
-  return response.data;
+  return userFromServer(response.data);
 }
 
-export const getUserImage = async (uid: string) => {
-  const userRes = await getUser(uid);
-  const avatarId = userRes.avatar;
-  const userId = userRes.id;
+export const getUserImage = (user: DiscordUser) => {
+  const avatarId = user.avatar;
+  const userId = user.id;
   return `${avatarBaseUrl}/${userId}/${avatarId}.png`
 }
 
-export const getUserImageColor = async (uid: string) => {
+export const getUserImageColor = async (user: DiscordUser) => {
   const fac = new FastAverageColor();
-  const userImageUrl = await getUserImage(uid);
+  const userImageUrl = getUserImage(user);
   const userImage = new Image();
   userImage.crossOrigin = 'anonymous';
   userImage.src = userImageUrl;

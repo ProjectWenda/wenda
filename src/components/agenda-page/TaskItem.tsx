@@ -1,8 +1,8 @@
 import { faCheckCircle, faTrash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { useRecoilState } from "recoil";
-import { editTaskToServer } from "../../domain/TaskUtils";
-import { Task, DeleteTaskArgs, TaskStatus } from "../../schema/Task";
+import { editTaskToServer, getTasksByDate } from "../../domain/TaskUtils";
+import { Task, DeleteTaskArgs, TaskStatus, DayTasks } from "../../schema/Task";
 import { deleteTask } from "../../services/tasks";
 import { tasksState } from "../../store";
 import IconButton from "../IconButton";
@@ -21,14 +21,22 @@ const CONTENT_DIV_BASE_CLASSNAME =
 const CONTENT_TEXT_BASE_CLASSNAME = "w-fit cursor-pointer";
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
-  const [taskList, setTaskListState] = useRecoilState(tasksState);
+  const [dayTasks, setDayTasks] = useRecoilState(tasksState);
   const [newContent, setNewContent] = React.useState(task.content);
   const [editing, setEditing] = React.useState(false);
   const [hoveringTask, setHoveringTask] = React.useState(false);
+  const { taskDate } = React.useMemo(() => task, [task]);
 
   const handleDelete = async () => {
-    const newState = [...taskList].filter((t) => t.taskID !== task.taskID);
-    setTaskListState(newState);
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).filter(
+          (t) => t.taskID !== task.taskID
+        ),
+      },
+    };
+    setDayTasks(newDayTasks);
     const deleteArgs: DeleteTaskArgs = {
       uid,
       taskID: task.taskID,
@@ -40,14 +48,19 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
     if (!editing) return;
     const updatedProps: Partial<Task> = { content: newContent };
     const updatedTask = { ...task, ...updatedProps };
-    const newListState = [...taskList].map((t) =>
-      t.taskID === task.taskID ? updatedTask : t
-    );
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).map((t) =>
+          t.taskID === task.taskID ? updatedTask : t
+        ),
+      },
+    };
     setEditing(false);
     setNewContent(updatedTask.content);
-    setTaskListState(newListState);
+    setDayTasks(newDayTasks);
     await editTaskToServer(task, uid, updatedProps);
-  }, [task, newContent, taskList, uid, editing]);
+  }, [task, newContent, dayTasks, uid, editing, taskDate, getTasksByDate]);
 
   const checkTask = React.useCallback(async () => {
     const newStatus =
@@ -56,12 +69,17 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
         : TaskStatus.Completed;
     const updatedProps: Partial<Task> = { taskStatus: newStatus };
     const updatedTask = { ...task, ...updatedProps };
-    const newListState = taskList.map((t) =>
-      t.taskID === task.taskID ? updatedTask : t
-    );
-    setTaskListState(newListState);
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).map((t) =>
+          t.taskID === task.taskID ? updatedTask : t
+        ),
+      },
+    };
+    setDayTasks(newDayTasks);
     await editTaskToServer(task, uid, updatedProps);
-  }, [task, taskList, uid]);
+  }, [task, dayTasks, getTasksByDate, taskDate, uid]);
 
   const handleClick = React.useCallback(() => {
     if (
@@ -113,7 +131,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
               <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
             </div>
           ) : (
-            <div className="flex justify-between items-center" {...draggableProvided.dragHandleProps}>
+            <div
+              className="flex justify-between items-center"
+              {...draggableProvided.dragHandleProps}
+            >
               <p className={contentTextClassName} onClick={handleClick}>
                 {task.content}
               </p>

@@ -31,6 +31,18 @@ export interface Task {
   taskStatus: TaskStatus;
 }
 
+export interface DayTasks {
+  [date: string]: {
+    tasks: Task[];
+  }
+}
+
+export interface ServerTasksResponse {
+  [date: string]: {
+    tasks: ServerTask[];
+  }
+}
+
 export interface ServerTask {
   taskID: string;
   timeCreated: string;
@@ -40,15 +52,25 @@ export interface ServerTask {
   taskStatus: TaskStatus;
 }
 
-export const tasksFromServer = (serverTasks: ServerTask[]): Task[] => {
-  return serverTasks.map((t) => ({
-    taskID: t.taskID,
-    timeCreated: moment(t.timeCreated),
-    timeUpdated: moment(t.timeUpdated),
-    taskDate: moment(t.taskDate),
-    content: t.content,
-    taskStatus: t.taskStatus,
-  }));
+export const taskFromServer = (task: ServerTask): Task => {
+  return {
+    taskID: task.taskID,
+    timeCreated: moment(task.timeCreated),
+    timeUpdated: moment(task.timeUpdated),
+    taskDate: moment(task.taskDate),
+    content: task.content,
+    taskStatus: task.taskStatus,
+  };
+}
+
+export const dayTasksFromServer = (res: ServerTasksResponse): DayTasks => {
+  const tasks: DayTasks = {};
+  Object.keys(res).forEach((date) => {
+    tasks[date] = {
+      tasks: res[date].tasks.map((t) => taskFromServer(t)),
+    };
+  });
+  return tasks;
 };
 
 export const taskToServer = (task: Task): ServerTask => {

@@ -1,6 +1,6 @@
 import moment from "moment";
 import { selector, atom } from "recoil";
-import { Task } from "./schema/Task";
+import { DayTasks, Task } from "./schema/Task";
 import { User } from "./schema/User";
 
 const authCookie = document.cookie.replace(
@@ -31,9 +31,9 @@ export const loggedInState = selector<boolean>({
   },
 });
 
-export const tasksState = atom<Task[]>({
-  key: "userTasksState",
-  default: [],
+export const tasksState = atom<DayTasks>({
+  key: "tasksState",
+  default: {},
 });
 
 export const loadingState = atom<boolean>({
@@ -50,6 +50,7 @@ export const themeState = atom<boolean>({
   key: "themeState",
   default: getBaseTheme(),
 });
+
 export const draggingState = atom<boolean>({
   key: "draggingState",
   default: false,

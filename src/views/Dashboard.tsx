@@ -10,7 +10,7 @@ import {
   tasksState,
   weekState,
 } from "../store";
-import { Task, TaskStatus } from "../schema/Task";
+import { DayTasks, Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
 import { addTask, getTasks } from "../services/tasks";
 import { Weekday } from "../schema/Weekday";
@@ -28,12 +28,10 @@ import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
 import {
   DragDropContext,
-  Droppable,
-  DroppableProvided,
   DropResult,
 } from "@hello-pangea/dnd";
-import { getTasksByDay, getTasksByNotDay } from "../domain/TaskUtils";
-import { getFullWeekdayName, getWeekdayFromDay } from "../domain/WeekdayUtils";
+import { getTasksByDate } from "../domain/TaskUtils";
+import { getWeekdayFromDay } from "../domain/WeekdayUtils";
 
 let didInit = false;
 
@@ -43,14 +41,12 @@ const Dashboard = () => {
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [creatingItem, setCreatingItem] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
-  const [taskList, setTaskListState] = useRecoilState(tasksState);
+  const [dayTasks, setDayTasksState] = useRecoilState(tasksState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const loggedIn = useRecoilValue(loggedInState);
   const [searchParams, setSearchParams] = useSearchParams();
   const [dragging, setDragging] = useRecoilState(draggingState);
   const currentWeek = useRecoilValue(weekState);
-  const getDayTasks = (date: Moment) => getTasksByDay(taskList, date);
-  const getRestOfWeekTasks = (date: Moment) => getTasksByNotDay(taskList, date);
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -81,10 +77,10 @@ const Dashboard = () => {
     setLoading(true);
     if (loggedIn) {
       const tasks = await getTasks(userState!.authUID);
-      setTaskListState(tasks);
+      setDayTasksState(tasks);
     }
     setLoading(false);
-  }, [loggedIn, userState, setTaskListState]);
+  }, [loggedIn, userState, setDayTasksState]);
 
   React.useEffect(() => {
     if (!didInit) {
@@ -99,17 +95,27 @@ const Dashboard = () => {
 
   // submit a new task to the server
   const submitTask = async () => {
+    const newTaskDate = moment().week(currentWeek).day(newTaskDOW);
     const newTask: Partial<Task> = {
       content: newTaskContent,
       taskStatus: TaskStatus.ToDo,
-      taskDate: moment().day(newTaskDOW),
+      taskDate: newTaskDate,
     };
     const addArgs: AddTaskArgs = {
       uid: userState!.authUID,
       taskData: newTask,
     };
     const newTaskRes = await addTask(addArgs);
-    setTaskListState((prev) => [...prev, newTaskRes]);
+    if (newTaskRes) {
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
+          tasks: [...getTasksByDate(dayTasks, newTaskDate), newTaskRes],
+        },
+      };
+      setDayTasksState(newDayTasks);
+    }
+
     setNewTaskContent("");
     setNewTaskDOW(0);
     setCreatingItem(false);
@@ -145,34 +151,120 @@ const Dashboard = () => {
       .week(currentWeek)
       .day(getWeekdayFromDay(result.destination.droppableId));
 
-    if (sourceDate.isSame(destinationDate, "date")) {
-      const dayTasks = getDayTasks(sourceDate);
-      const restOfWeekTasks = getRestOfWeekTasks(sourceDate);
+    const sourceTasks = getTasksByDate(dayTasks, sourceDate);
+    const destinationTasks = getTasksByDate(dayTasks, destinationDate);
 
-      const items = [...dayTasks];
+    if (sourceDate.isSame(destinationDate, "date")) {
+      const items = [...sourceTasks];
       const [reorderedItem] = items.splice(result.source.index, 1);
       items.splice(result.destination.index, 0, reorderedItem);
 
-      setTaskListState([...items, ...restOfWeekTasks]);
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [sourceDate.format("YYYY-MM-DD")]: {
+          tasks: items,
+        },
+      };
+      setDayTasksState(newDayTasks);
     } else {
-      const sourceDayTasks = getDayTasks(sourceDate);
-      const destinationDayTasks = getDayTasks(destinationDate);
-      const restOfTasks = getRestOfWeekTasks(sourceDate).filter(
-        (t) => !t.taskDate.isSame(destinationDate, "date")
-      );
-      const reorderedItem = sourceDayTasks.splice(result.source.index, 1)[0];
+      const sourceItems = [...sourceTasks];
+      const destinationItems = [...destinationTasks];
+      const reorderedItem = sourceItems.splice(result.source.index, 1)[0];
       const newDate = moment()
         .week(currentWeek)
         .day(getWeekdayFromDay(result.destination.droppableId));
       const updatedItem = { ...reorderedItem, taskDate: newDate };
-      destinationDayTasks.splice(result.destination.index, 0, updatedItem);
-      setTaskListState([
-        ...destinationDayTasks,
-        ...sourceDayTasks,
-        ...restOfTasks,
-      ]);
+      destinationItems.splice(result.destination.index, 0, updatedItem);
+
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [sourceDate.format("YYYY-MM-DD")]: {
+          tasks: sourceItems,
+        },
+        [destinationDate.format("YYYY-MM-DD")]: {
+          tasks: destinationItems,
+        },
+      };
+      setDayTasksState(newDayTasks);
     }
   };
+
+  // const onDragEnd = (result: DropResult) => {
+  //   setDragging(false);
+  //   // dropped outside the list
+  //   if (!result.destination) {
+  //     return;
+  //   }
+
+  //   const sourceDate = moment()
+  //     .week(currentWeek)
+  //     .day(getWeekdayFromDay(result.source.droppableId));
+  //   const destinationDate = moment()
+  //     .week(currentWeek)
+  //     .day(getWeekdayFromDay(result.destination.droppableId));
+
+  //   const sourceTasks = getTasksByDate(dayTasks, sourceDate);
+  //   const destinationTasks = getTasksByDate(dayTasks, destinationDate);
+
+  //   if (sourceDate.isSame(destinationDate, "date")) {
+  //     const items = [...sourceTasks];
+  //     const [reorderedItem] = items.splice(result.source.index, 1);
+  //     items.splice(result.destination.index, 0, reorderedItem);
+
+  //     const newDayTasks: DayTasks = {
+  //       ...dayTasks,
+  //       [sourceDate.format("YYYY-MM-DD")]: {
+  //         tasks: items,
+  //       },
+  //     };
+  //     setDayTasksState(newDayTasks);
+  //   } else {
+  //     const newDate = moment()
+  //       .week(currentWeek)
+  //       .day(getWeekdayFromDay(result.destination.droppableId));
+
+  //     if (sourceTasks.length === 1) {
+  //       const reorderedItem = sourceTasks[0];
+  //       const updatedItem = { ...reorderedItem, taskDate: newDate };
+  //       if (destinationTasks.length === 0) {
+  //         setDayTasksState({
+  //           ...dayTasks,
+  //           [sourceDate.format("YYYY-MM-DD")]: {
+  //             tasks: [],
+  //           },
+  //           [destinationDate.format("YYYY-MM-DD")]: {
+  //             tasks: [updatedItem],
+  //           },
+  //         });
+  //       } else {
+  //         destinationTasks.splice(result.destination.index, 0, updatedItem);
+  //         setDayTasksState({
+  //           ...dayTasks,
+  //           [sourceDate.format("YYYY-MM-DD")]: {
+  //             tasks: [],
+  //           },
+  //           [destinationDate.format("YYYY-MM-DD")]: {
+  //             tasks: destinationTasks,
+  //           },
+  //         });
+  //       }
+  //     } else {
+  //       const reorderedItem = sourceTasks.splice(result.source.index, 1)[0];
+  //       const updatedItem = { ...reorderedItem, taskDate: newDate };
+  //       destinationTasks.splice(result.destination.index, 0, updatedItem);
+  //       setDayTasksState({
+  //         ...dayTasks,
+  //         [sourceDate.format("YYYY-MM-DD")]: {
+  //           tasks: sourceTasks,
+  //         },
+  //         [destinationDate.format("YYYY-MM-DD")]: {
+  //           tasks: destinationTasks,
+  //         },
+  //       });
+  //     }
+  //   }
+  // };
+
   const clearCreating = () => {
     setNewTaskContent("");
     setNewTaskDOW(0);

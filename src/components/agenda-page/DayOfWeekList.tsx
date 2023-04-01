@@ -2,15 +2,11 @@ import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import React from "react";
 import {
-  DragDropContext,
-  Draggable,
-  DraggableProvided,
   Droppable,
   DroppableProvided,
-  DropResult,
 } from "@hello-pangea/dnd";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { getTasksByDay, getTasksByNotDay } from "../../domain/TaskUtils";
+import { useRecoilValue } from "recoil";
+import { getTasksByDate } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
 import { draggingState, tasksState, weekState } from "../../store";
@@ -27,7 +23,7 @@ interface DayOfWeekListProps {
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
   const [addingNewTask, setAddingNewTask] = React.useState(false);
   const week = useRecoilValue(weekState);
-  const tasks = useRecoilValue(tasksState);
+  const dayTasks = useRecoilValue(tasksState);
   const dragging = useRecoilValue(draggingState);
 
   const date = React.useMemo(
@@ -35,9 +31,9 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
     [week, dayOfWeek]
   );
 
-  const dayTasks = React.useMemo(
-    () => getTasksByDay(tasks, date),
-    [tasks, date]
+  const dayOfWeekTasks = React.useMemo(
+    () => getTasksByDate(dayTasks, date),
+    [dayTasks, date]
   );
 
   const isToday = React.useMemo(() => moment().isSame(date, "date"), [date]);
@@ -81,7 +77,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
             {...droppableProvided.droppableProps}
           >
             <div className="flex flex-col mt-2">
-            {dayTasks.map((t, index) => (
+            {dayOfWeekTasks.map((t, index) => (
               <TaskItem task={t} index={index} uid={uid} key={t.taskID} />
             ))}
             </div>

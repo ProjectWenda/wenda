@@ -5,29 +5,27 @@ import { getUser, getUserImageColor } from "../services/discord";
 import LogoutButton from "./LogoutButton";
 import ThemeToggle from "./ThemeToggle";
 import UserImage from "./UserImage";
+import { DiscordUser } from "../schema/User";
 
 interface UserMenuProps {
-  uid: string;
+  user: DiscordUser
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ uid }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const [showMenu, setShowMenu] = React.useState(false);
-  const [userName, setUserName] = React.useState();
+  const [userName, setUserName] = React.useState('');
   const [imageColor, setImageColor] = React.useState<string>();
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const [user, imageColor] = await Promise.all([
-        getUser(uid),
-        getUserImageColor(uid),
-      ]);
+      const imageColor = await getUserImageColor(user);
       setUserName(user.username);
       setImageColor(imageColor.rgb);
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const menuEntries = [
     <ThemeToggle showText />,
@@ -64,7 +62,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ uid }) => {
         onClick={() => setShowMenu(!showMenu)}
         ref={triggerRef}
       >
-        <UserImage uid={uid} />
+        <UserImage user={user} />
       </motion.div>
       {showMenu && (
         <motion.div
