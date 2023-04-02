@@ -10,9 +10,9 @@ import {
   tasksState,
   weekState,
 } from "../store";
-import { DayTasks, Task, TaskStatus } from "../schema/Task";
+import { DayTasks, EditOrderArgs, Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
-import { addTask, getTasks } from "../services/tasks";
+import { addTask, editOrder, getTasks } from "../services/tasks";
 import { Weekday } from "../schema/Weekday";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -137,7 +137,7 @@ const Dashboard = () => {
     setDragging(true);
   };
 
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     setDragging(false);
     // dropped outside the list
     if (!result.destination) {
@@ -166,6 +166,30 @@ const Dashboard = () => {
         },
       };
       setDayTasksState(newDayTasks);
+
+      // get the task before the newly reordered task if it exists
+      const prevTaskID =
+        result.destination.index > 0
+          ? items[result.destination.index - 1].taskID
+          : "";
+      
+      // get the task after the newly reordered task if it exists
+      const nextTaskID =
+        result.destination.index < items.length - 1
+          ? items[result.destination.index + 1].taskID
+          : "";
+
+      const args : EditOrderArgs = {
+        uid: userState!.authUID,
+        taskID: reorderedItem.taskID,
+        initialDate: reorderedItem.taskDate.toISOString(),
+        newDate: reorderedItem.taskDate.toISOString(),
+        prevTaskID,
+        nextTaskID,
+      }
+
+      await editOrder(args);
+
     } else {
       const sourceItems = [...sourceTasks];
       const destinationItems = [...destinationTasks];
@@ -186,6 +210,30 @@ const Dashboard = () => {
         },
       };
       setDayTasksState(newDayTasks);
+
+      // get the task before the newly reordered task if it exists
+      const prevTaskID =
+        result.destination.index > 0
+          ? destinationItems[result.destination.index - 1].taskID
+          : "";
+      
+      // get the task after the newly reordered task if it exists
+      const nextTaskID =
+        result.destination.index < destinationItems.length - 1
+          ? destinationItems[result.destination.index + 1].taskID
+          : "";
+
+      const args : EditOrderArgs = {
+        uid: userState!.authUID,
+        taskID: reorderedItem.taskID,
+        initialDate: reorderedItem.taskDate.toISOString(),
+        newDate: newDate.toISOString(),
+        prevTaskID,
+        nextTaskID,
+      }
+
+      await editOrder(args);
+
     }
   };
 

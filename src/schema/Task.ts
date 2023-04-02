@@ -8,6 +8,15 @@ export interface EditTaskArgs extends Partial<ServerTask> {
   taskID: string;
 }
 
+export interface EditOrderArgs {
+  uid: string;
+  taskID: string;
+  initialDate: string;
+  newDate: string;
+  nextTaskID?: string;
+  prevTaskID?: string;
+}
+
 export interface AddTaskArgs {
   uid: string;
   taskData: Partial<Task>;
