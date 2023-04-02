@@ -9,13 +9,13 @@ import UserImage from "../components/UserImage";
 import UserTag from "../components/UserTag";
 import UserMenu from "../components/UserMenu";
 import { getUser } from "../services/discord";
-import { DiscordUser } from "../schema/User";
+import { DiscordUser, getDiscordUserPrototype } from "../schema/User";
 
 const AuthLayout = () => {
   const loggedIn = useRecoilValue(loggedInState);
   const authUser = useRecoilValue(authUserState);
   const [isDarkMode, setIsDarkMode] = useRecoilState(themeState);
-  const [discordUserRes, setDiscordUserRes] = React.useState<DiscordUser>();
+  const [discordUserRes, setDiscordUserRes] = React.useState<DiscordUser>(getDiscordUserPrototype());
 
   React.useEffect(() => {
     //save theme to local storage
@@ -38,6 +38,8 @@ const AuthLayout = () => {
     }
   }, [authUser?.authUID])
 
+  const showUserInfo = React.useMemo(() => loggedIn && (discordUserRes.id !== ""), [loggedIn, discordUserRes])
+
   return (
     <div className={isDarkMode ? "dark h-full" : "light h-full"}>
       <div className="h-full dark:bg-zinc-900 bg-white">
@@ -54,8 +56,8 @@ const AuthLayout = () => {
           </div>
         )}
           <div className="flex items-center gap-2 mr-4">
-            {discordUserRes && <UserTag user={discordUserRes} />}
-            {discordUserRes && <UserMenu user={discordUserRes} />}
+            {showUserInfo && <UserTag user={discordUserRes} />}
+            {showUserInfo && <UserMenu user={discordUserRes} />}
           </div>
         </div>
         <div className="flex dark:text-white mx-5 my-2 h-5/6">

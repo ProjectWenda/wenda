@@ -20,6 +20,26 @@ export interface DiscordUser {
   username: string;
 }
 
+export const getDiscordUserPrototype = () : DiscordUser => {
+  return {
+    accentColor: 0,
+    avatar: "",
+    avatarDecoration: "",
+    banner: "",
+    bannerColor: "",
+    discriminator: "",
+    displayName: "",
+    flags: 0,
+    globalName: "",
+    id: "",
+    locale: "",
+    mfaEnabled: false,
+    premiumType: 0,
+    publicFlags: 0,
+    username: "",
+  };
+}
+
 export const userFromServer = (user: ServerDiscordUser): DiscordUser => {
   return {
     accentColor: user.accent_color,
