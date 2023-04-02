@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -26,10 +26,7 @@ import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
-import {
-  DragDropContext,
-  DropResult,
-} from "@hello-pangea/dnd";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { getTasksByDate } from "../domain/TaskUtils";
 import { getWeekdayFromDay } from "../domain/WeekdayUtils";
 
@@ -172,24 +169,23 @@ const Dashboard = () => {
         result.destination.index > 0
           ? items[result.destination.index - 1].taskID
           : "";
-      
+
       // get the task after the newly reordered task if it exists
       const nextTaskID =
         result.destination.index < items.length - 1
           ? items[result.destination.index + 1].taskID
           : "";
 
-      const args : EditOrderArgs = {
+      const args: EditOrderArgs = {
         uid: userState!.authUID,
         taskID: reorderedItem.taskID,
         initialDate: reorderedItem.taskDate.toISOString(),
         newDate: reorderedItem.taskDate.toISOString(),
         prevTaskID,
         nextTaskID,
-      }
+      };
 
       await editOrder(args);
-
     } else {
       const sourceItems = [...sourceTasks];
       const destinationItems = [...destinationTasks];
@@ -216,24 +212,23 @@ const Dashboard = () => {
         result.destination.index > 0
           ? destinationItems[result.destination.index - 1].taskID
           : "";
-      
+
       // get the task after the newly reordered task if it exists
       const nextTaskID =
         result.destination.index < destinationItems.length - 1
           ? destinationItems[result.destination.index + 1].taskID
           : "";
 
-      const args : EditOrderArgs = {
+      const args: EditOrderArgs = {
         uid: userState!.authUID,
         taskID: reorderedItem.taskID,
         initialDate: reorderedItem.taskDate.toISOString(),
         newDate: newDate.toISOString(),
         prevTaskID,
         nextTaskID,
-      }
+      };
 
       await editOrder(args);
-
     }
   };
 
@@ -245,6 +240,11 @@ const Dashboard = () => {
 
   useKeyPress(["Escape"], clearCreating);
   useKeyPress(["i"], () => setCreatingItem(true), null, true);
+
+  const balancerElementClassname = React.useMemo(
+    () => (creatingItem ? "w-[328.575px]" : "w-[107.406px]"),
+    [creatingItem]
+  );
 
   return (
     <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
@@ -296,7 +296,7 @@ const Dashboard = () => {
               </div>
             )}
             <WeekSwitcher />
-            <div className="w-[107.406px]"></div>
+            <div className={balancerElementClassname}></div>
           </div>
           <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
             <div className="flex flex-1">{dayOfWeekComponentsList}</div>
