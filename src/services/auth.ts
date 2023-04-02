@@ -12,8 +12,3 @@ export const authUser = async (code: string): Promise<string | null> => {
     return null;
   }
 };
-
-export const getFriends = async (uid: string) => {
-  const response = await axios.get(`${baseUrl}/friends`, { params: { uid } });
-  return response.data;
-}

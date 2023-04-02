@@ -1,16 +1,18 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   authUserState,
+  draggingState,
   loadingState,
   loggedInState,
   tasksState,
+  weekState,
 } from "../store";
-import { Task, TaskStatus } from "../schema/Task";
+import { DayTasks, EditOrderArgs, Task, TaskStatus } from "../schema/Task";
 import { AddTaskArgs } from "../schema/Task";
-import { addTask, getTasks } from "../services/tasks";
+import { addTask, editOrder, getTasks } from "../services/tasks";
 import { Weekday } from "../schema/Weekday";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,10 +22,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useKeyPress } from "../hooks/useKeyPress";
 import IconButton from "../components/IconButton";
-import { authUser, getFriends } from "../services/auth";
+import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
+import {
+  DragDropContext,
+  DropResult,
+} from "@hello-pangea/dnd";
+import { getTasksByDate } from "../domain/TaskUtils";
+import { getWeekdayFromDay } from "../domain/WeekdayUtils";
 
 let didInit = false;
 
@@ -33,10 +41,12 @@ const Dashboard = () => {
   const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [creatingItem, setCreatingItem] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
-  const [_, setTaskListState] = useRecoilState(tasksState);
+  const [dayTasks, setDayTasksState] = useRecoilState(tasksState);
   const [loading, setLoading] = useRecoilState(loadingState);
   const loggedIn = useRecoilValue(loggedInState);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [dragging, setDragging] = useRecoilState(draggingState);
+  const currentWeek = useRecoilValue(weekState);
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -67,10 +77,10 @@ const Dashboard = () => {
     setLoading(true);
     if (loggedIn) {
       const tasks = await getTasks(userState!.authUID);
-      setTaskListState(tasks);
+      setDayTasksState(tasks);
     }
     setLoading(false);
-  }, [loggedIn, userState, setTaskListState]);
+  }, [loggedIn, userState, setDayTasksState]);
 
   React.useEffect(() => {
     if (!didInit) {
@@ -85,23 +95,33 @@ const Dashboard = () => {
 
   // submit a new task to the server
   const submitTask = async () => {
+    const newTaskDate = moment().week(currentWeek).day(newTaskDOW);
     const newTask: Partial<Task> = {
       content: newTaskContent,
       taskStatus: TaskStatus.ToDo,
-      taskDate: moment().day(newTaskDOW),
+      taskDate: newTaskDate,
     };
     const addArgs: AddTaskArgs = {
       uid: userState!.authUID,
       taskData: newTask,
     };
     const newTaskRes = await addTask(addArgs);
-    setTaskListState((prev) => [...prev, newTaskRes]);
+    if (newTaskRes) {
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
+          tasks: [...getTasksByDate(dayTasks, newTaskDate), newTaskRes],
+        },
+      };
+      setDayTasksState(newDayTasks);
+    }
+
     setNewTaskContent("");
     setNewTaskDOW(0);
     setCreatingItem(false);
   };
 
-  const dayOfWeekComponentsList = [];
+  const dayOfWeekComponentsList: Array<JSX.Element> = [];
 
   // we need to recheck userState here because
   // it's not guaranteed to be initialized
@@ -112,6 +132,110 @@ const Dashboard = () => {
       );
     }
   }
+
+  const onDragStart = () => {
+    setDragging(true);
+  };
+
+  const onDragEnd = async (result: DropResult) => {
+    setDragging(false);
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const sourceDate = moment()
+      .week(currentWeek)
+      .day(getWeekdayFromDay(result.source.droppableId));
+    const destinationDate = moment()
+      .week(currentWeek)
+      .day(getWeekdayFromDay(result.destination.droppableId));
+
+    const sourceTasks = getTasksByDate(dayTasks, sourceDate);
+    const destinationTasks = getTasksByDate(dayTasks, destinationDate);
+
+    if (sourceDate.isSame(destinationDate, "date")) {
+      const items = [...sourceTasks];
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [sourceDate.format("YYYY-MM-DD")]: {
+          tasks: items,
+        },
+      };
+      setDayTasksState(newDayTasks);
+
+      // get the task before the newly reordered task if it exists
+      const prevTaskID =
+        result.destination.index > 0
+          ? items[result.destination.index - 1].taskID
+          : "";
+      
+      // get the task after the newly reordered task if it exists
+      const nextTaskID =
+        result.destination.index < items.length - 1
+          ? items[result.destination.index + 1].taskID
+          : "";
+
+      const args : EditOrderArgs = {
+        uid: userState!.authUID,
+        taskID: reorderedItem.taskID,
+        initialDate: reorderedItem.taskDate.toISOString(),
+        newDate: reorderedItem.taskDate.toISOString(),
+        prevTaskID,
+        nextTaskID,
+      }
+
+      await editOrder(args);
+
+    } else {
+      const sourceItems = [...sourceTasks];
+      const destinationItems = [...destinationTasks];
+      const reorderedItem = sourceItems.splice(result.source.index, 1)[0];
+      const newDate = moment()
+        .week(currentWeek)
+        .day(getWeekdayFromDay(result.destination.droppableId));
+      const updatedItem = { ...reorderedItem, taskDate: newDate };
+      destinationItems.splice(result.destination.index, 0, updatedItem);
+
+      const newDayTasks: DayTasks = {
+        ...dayTasks,
+        [sourceDate.format("YYYY-MM-DD")]: {
+          tasks: sourceItems,
+        },
+        [destinationDate.format("YYYY-MM-DD")]: {
+          tasks: destinationItems,
+        },
+      };
+      setDayTasksState(newDayTasks);
+
+      // get the task before the newly reordered task if it exists
+      const prevTaskID =
+        result.destination.index > 0
+          ? destinationItems[result.destination.index - 1].taskID
+          : "";
+      
+      // get the task after the newly reordered task if it exists
+      const nextTaskID =
+        result.destination.index < destinationItems.length - 1
+          ? destinationItems[result.destination.index + 1].taskID
+          : "";
+
+      const args : EditOrderArgs = {
+        uid: userState!.authUID,
+        taskID: reorderedItem.taskID,
+        initialDate: reorderedItem.taskDate.toISOString(),
+        newDate: newDate.toISOString(),
+        prevTaskID,
+        nextTaskID,
+      }
+
+      await editOrder(args);
+
+    }
+  };
 
   const clearCreating = () => {
     setNewTaskContent("");
@@ -150,14 +274,14 @@ const Dashboard = () => {
                 <input
                   onChange={(e) => setNewTaskContent(e.target.value)}
                   value={newTaskContent}
-                  className="rounded p-1"
+                  className="rounded p-1 dark:bg-zinc-700 bg-white"
                   placeholder="New task content.."
                   autoFocus
                 />
                 <select
                   onChange={(e) => setNewTaskDOW(+e.target.value)}
                   value={newTaskDOW}
-                  className="h-8 rounded"
+                  className="h-8 rounded dark:bg-zinc-700 bg-white"
                 >
                   <option value={0}>Sunday</option>
                   <option value={1}>Monday</option>
@@ -172,9 +296,11 @@ const Dashboard = () => {
               </div>
             )}
             <WeekSwitcher />
-            <div className="w-[107.406px]"></div> 
+            <div className="w-[107.406px]"></div>
           </div>
-          <div className="flex flex-1">{dayOfWeekComponentsList}</div>
+          <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
+            <div className="flex flex-1">{dayOfWeekComponentsList}</div>
+          </DragDropContext>
         </>
       ) : (
         <div className="flex grow items-center justify-center">

@@ -1,15 +1,15 @@
-import {
-  faCirclePlus,
-  faChevronUp,
-  faChevronDown,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import React from "react";
+import {
+  Droppable,
+  DroppableProvided,
+} from "@hello-pangea/dnd";
 import { useRecoilValue } from "recoil";
-import { getTasksByDay } from "../../domain/TaskUtils";
+import { getTasksByDate } from "../../domain/TaskUtils";
 import { getWeekdayName } from "../../domain/WeekdayUtils";
 import { Weekday } from "../../schema/Weekday";
-import { tasksState, weekState } from "../../store";
+import { draggingState, tasksState, weekState } from "../../store";
 import IconButton from "../IconButton";
 import NewTaskForm from "./NewTaskForm";
 import NewTaskPrompt from "./NewTaskPrompt";
@@ -21,25 +21,22 @@ interface DayOfWeekListProps {
 }
 
 const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
-  const [editingDay, setEditingDay] = React.useState(false);
   const [addingNewTask, setAddingNewTask] = React.useState(false);
   const week = useRecoilValue(weekState);
-  const tasks = useRecoilValue(tasksState);
+  const dayTasks = useRecoilValue(tasksState);
+  const dragging = useRecoilValue(draggingState);
 
   const date = React.useMemo(
     () => moment().week(week).day(dayOfWeek),
     [week, dayOfWeek]
   );
 
-  const dayTasks = React.useMemo(
-    () => getTasksByDay(tasks, date),
-    [tasks, date]
+  const dayOfWeekTasks = React.useMemo(
+    () => getTasksByDate(dayTasks, date),
+    [dayTasks, date]
   );
 
-  const isToday = React.useMemo(
-    () => moment().isSame(date, "date"),
-    [date]
-  );
+  const isToday = React.useMemo(() => moment().isSame(date, "date"), [date]);
 
   const contClassName = React.useMemo(
     () =>
@@ -60,11 +57,9 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
           !isToday && "pt-2"
         }`}
       >
-        <div className="flex gap-0">
-          <span className="text-lg ml-1 font-bold">
-            {getWeekdayName(dayOfWeek)}
-          </span>
-          <span className="text-lg">{dayOfMonthString}</span>
+        <div className="text-lg flex gap-0">
+        <p className="ml-1 font-bold">{getWeekdayName(dayOfWeek)}</p>
+        <p>{dayOfMonthString}</p>
         </div>
         <div className="flex gap-3 mr-1">
           <IconButton
@@ -73,30 +68,36 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
             disabled={addingNewTask}
             onClick={!addingNewTask ? () => setAddingNewTask(true) : undefined}
           />
-          <IconButton
-            icon={editingDay ? faChevronUp : faChevronDown}
-            onClick={() => setEditingDay(!editingDay)}
-            size="sm"
-          />
         </div>
       </div>
-      <div className="flex flex-col gap-1 mt-1 p-1">
-        {dayTasks.map((t) => (
-          <TaskItem task={t} uid={uid} key={t.taskID} canEdit={editingDay} />
-        ))}
-        {addingNewTask ? (
-          <NewTaskForm
-            setAddingNewTask={setAddingNewTask}
-            dayOfWeek={dayOfWeek}
-            uid={uid}
-          />
-        ) : (
-          <NewTaskPrompt
-            className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in"
-            setAddingNewTask={setAddingNewTask}
-          />
+      <Droppable droppableId={getWeekdayName(dayOfWeek)} type="COLUMN">
+        {(droppableProvided: DroppableProvided) => (
+          <div
+            ref={droppableProvided.innerRef}
+            {...droppableProvided.droppableProps}
+          >
+            <div className="flex flex-col mt-2">
+            {dayOfWeekTasks.map((t, index) => (
+              <TaskItem task={t} index={index} uid={uid} key={t.taskID} />
+            ))}
+            </div>
+
+            {addingNewTask ? (
+              <NewTaskForm
+                setAddingNewTask={setAddingNewTask}
+                dayOfWeek={dayOfWeek}
+                uid={uid}
+              />
+            ) : !dragging ? (
+              <NewTaskPrompt
+                className="group-hover:visible invisible group-hover:animate-in group-hover:duration-300 group-hover:fade-in mx-1"
+                setAddingNewTask={setAddingNewTask}
+              />
+            ) : null}
+            {droppableProvided.placeholder}
+          </div>
         )}
-      </div>
+      </Droppable>
     </div>
   );
 };

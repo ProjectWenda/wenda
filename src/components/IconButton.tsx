@@ -31,8 +31,8 @@ const IconButton: React.FC<IconButtonProps> = ({
 }) => {
   const baseClassName =
     "cursor-pointer " +
-    (disabled && `opacity-40`) +
-    (className && ` ${className}`);
+    (disabled ? `opacity-40` : "") +
+    (className ? ` ${className}` : "");
   const computedClassName = size
     ? `text-${size} ${baseClassName}`
     : `${baseClassName}`;

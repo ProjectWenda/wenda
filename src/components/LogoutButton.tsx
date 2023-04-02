@@ -3,7 +3,11 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authUserState, loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
 
-const LogoutButton = () => {
+interface LogoutButtonProps {
+  userName?: string;
+}
+
+const LogoutButton: React.FC<LogoutButtonProps> = ({ userName }) => {
   const setUserState = useSetRecoilState(authUserState);
   const loggedIn = useRecoilValue(loggedInState);
   const navigate = useNavigate();
@@ -20,14 +24,22 @@ const LogoutButton = () => {
     navigate("/login");
   };
 
-  return (
-    <div>
+  return !userName ? (
+    <button
+      className="text-white bg-disc-blue px-2 py-1 text-sm"
+      onClick={handleClick}
+    >
+      Logout
+    </button>
+  ) : (
+    <div className="flex items-center gap-2">
       <button
-        className="text-white bg-disc-blue px-2 py-1"
+        className="text-white bg-disc-blue px-2 py-1 text-sm"
         onClick={handleClick}
       >
         Logout
       </button>
+      <span className="text-sm">@{userName}</span>
     </div>
   );
 };

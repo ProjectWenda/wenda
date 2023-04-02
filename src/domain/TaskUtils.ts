@@ -1,10 +1,17 @@
 import { Moment } from "moment";
-import { EditTaskArgs, Task, taskToServer } from "../schema/Task";
+import { DayTasks, EditTaskArgs, Task, taskToServer } from "../schema/Task";
 import { editTask } from "../services/tasks";
 
-export const getTasksByDay = (tasks: Task[], day: Moment): Task[] => {
-  return tasks.filter((t) => t.taskDate.isSame(day, "date"));
-};
+export const getTasksByDate = (tasks: DayTasks, date: Moment) =>
+  tasks[date.format("YYYY-MM-DD")]
+    ? tasks[date.format("YYYY-MM-DD")].tasks ?? []
+    : [];
+
+// export const getNonDayTasks = (tasks: DayTasks, date: Moment) => {
+//   const newTasks : DayTasks = {...tasks};
+//   delete newTasks[date.format("YYYY-MM-DD")];
+//   return newTasks;
+// }
 
 export const editTaskToServer = async (
   task: Task,

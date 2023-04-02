@@ -1,66 +1,66 @@
-import {
-  faCheckCircle,
-  faX,
-  faPencil,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faTrash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { useRecoilState } from "recoil";
-import { editTaskToServer } from "../../domain/TaskUtils";
-import { Task, DeleteTaskArgs, TaskStatus } from "../../schema/Task";
+import { editTaskToServer, getTasksByDate } from "../../domain/TaskUtils";
+import { Task, DeleteTaskArgs, TaskStatus, DayTasks } from "../../schema/Task";
 import { deleteTask } from "../../services/tasks";
 import { tasksState } from "../../store";
 import IconButton from "../IconButton";
+import { motion } from "framer-motion";
+import { useKeyPress } from "../../hooks/useKeyPress";
+import { Draggable } from "@hello-pangea/dnd";
 
 interface TaskItemProps {
   task: Task;
   uid: string;
-  canEdit?: boolean;
+  index: number;
 }
 
 const CONTENT_DIV_BASE_CLASSNAME =
-  "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow";
-const CONTENT_TEXT_BASE_CLASSNAME = "cursor-pointer w-fit";
+  "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow rounded mb-1 mx-1";
+const CONTENT_TEXT_BASE_CLASSNAME = "w-fit cursor-pointer";
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
-  const [taskList, setTaskListState] = useRecoilState(tasksState);
+const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
+  const [dayTasks, setDayTasks] = useRecoilState(tasksState);
   const [newContent, setNewContent] = React.useState(task.content);
   const [editing, setEditing] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!canEdit) {
-      setEditing(false);
-      setNewContent(task.content);
-    }
-  }, [canEdit]);
+  const [hoveringTask, setHoveringTask] = React.useState(false);
+  const { taskDate } = React.useMemo(() => task, [task]);
 
   const handleDelete = async () => {
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).filter(
+          (t) => t.taskID !== task.taskID
+        ),
+      },
+    };
+    setDayTasks(newDayTasks);
     const deleteArgs: DeleteTaskArgs = {
       uid,
       taskID: task.taskID,
     };
     await deleteTask(deleteArgs);
-    setTaskListState((prev) => [
-      ...prev.filter((t) => t.taskID !== task.taskID),
-    ]);
   };
 
-  const handleEdit = async () => {
+  const handleEdit = React.useCallback(async () => {
+    if (!editing) return;
     const updatedProps: Partial<Task> = { content: newContent };
-    const updatedTask = await editTaskToServer(task, uid, updatedProps);
-    if (updatedTask !== null) {
-      const newListState = taskList.map((t) =>
-        t.taskID === task.taskID ? updatedTask : t
-      );
-      setTaskListState(newListState);
-      setEditing(false);
-      setNewContent(updatedTask.content);
-    }
-  };
-
-  const contentDivClassName = canEdit
-    ? `${CONTENT_DIV_BASE_CLASSNAME} rounded-t`
-    : `${CONTENT_DIV_BASE_CLASSNAME} rounded`;
+    const updatedTask = { ...task, ...updatedProps };
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).map((t) =>
+          t.taskID === task.taskID ? updatedTask : t
+        ),
+      },
+    };
+    setEditing(false);
+    setNewContent(updatedTask.content);
+    setDayTasks(newDayTasks);
+    await editTaskToServer(task, uid, updatedProps);
+  }, [task, newContent, dayTasks, uid, editing, taskDate, getTasksByDate]);
 
   const checkTask = React.useCallback(async () => {
     const newStatus =
@@ -69,12 +69,17 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
         : TaskStatus.Completed;
     const updatedProps: Partial<Task> = { taskStatus: newStatus };
     const updatedTask = { ...task, ...updatedProps };
-    const newListState = taskList.map((t) =>
-      t.taskID === task.taskID ? updatedTask : t
-    );
-    setTaskListState(newListState);
+    const newDayTasks: DayTasks = {
+      ...dayTasks,
+      [taskDate.format("YYYY-MM-DD")]: {
+        tasks: getTasksByDate(dayTasks, taskDate).map((t) =>
+          t.taskID === task.taskID ? updatedTask : t
+        ),
+      },
+    };
+    setDayTasks(newDayTasks);
     await editTaskToServer(task, uid, updatedProps);
-  }, [task, taskList, uid]);
+  }, [task, dayTasks, getTasksByDate, taskDate, uid]);
 
   const handleClick = React.useCallback(() => {
     if (
@@ -85,40 +90,70 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, canEdit }) => {
     }
   }, [task.taskStatus, checkTask]);
 
+  const cancelEditing = React.useCallback(() => {
+    if (!editing) return;
+    setEditing(false);
+    setNewContent(task.content);
+  }, [editing]);
+
   const contentTextClassName =
     task.taskStatus === TaskStatus.Completed
       ? `${CONTENT_TEXT_BASE_CLASSNAME} line-through opacity-50`
       : CONTENT_TEXT_BASE_CLASSNAME;
 
+  const deleteButtonVariants = {
+    shown: { opacity: 1, transition: { duration: 0.25 } },
+    hidden: { opacity: 0, transition: { duration: 0.05 } },
+  };
+
+  useKeyPress(["Enter"], handleEdit);
+  useKeyPress(["Escape"], cancelEditing);
+
   return (
-    <div className="flex flex-col">
-      <div className={contentDivClassName}>
-        {editing ? (
-          <div className="flex items-center gap-1">
-            <input
-              onChange={(e) => setNewContent(e.target.value)}
-              value={newContent}
-              className="pl-1 rounded"
-            />
-            <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
-          </div>
-        ) : (
-          <p className={contentTextClassName} onClick={handleClick}>
-            {task.content}
-          </p>
-        )}
-      </div>
-      {canEdit && (
-        <div className="bg-disc-light-blue rounded-b flex justify-end p-1 gap-2 shadow">
-          <IconButton
-            icon={editing ? faX : faPencil}
-            size="sm"
-            onClick={() => setEditing(!editing)}
-          />
-          <IconButton icon={faTrash} size="sm" onClick={handleDelete} />
-        </div>
+    <Draggable draggableId={task.taskID} index={index}>
+      {(draggableProvided) => (
+        <motion.div
+          onHoverStart={() => setHoveringTask(true)}
+          onHoverEnd={() => setHoveringTask(false)}
+          className={CONTENT_DIV_BASE_CLASSNAME}
+          onDoubleClick={() => setEditing(true)}
+          ref={draggableProvided.innerRef}
+          {...draggableProvided.draggableProps}
+        >
+          {editing ? (
+            <div className="flex items-center gap-1">
+              <input
+                onChange={(e) => setNewContent(e.target.value)}
+                value={newContent}
+                className="pl-1 rounded dark:bg-zinc-700 bg-white"
+                autoFocus
+              />
+              <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
+            </div>
+          ) : (
+            <div
+              className="flex justify-between items-center"
+              {...draggableProvided.dragHandleProps}
+            >
+              <p className={contentTextClassName} onClick={handleClick}>
+                {task.content}
+              </p>
+              <motion.div
+                animate={hoveringTask ? "shown" : "hidden"}
+                variants={deleteButtonVariants}
+              >
+                <IconButton
+                  icon={faTrash}
+                  className="text-zinc-500"
+                  size="sm"
+                  onClick={handleDelete}
+                />
+              </motion.div>
+            </div>
+          )}
+        </motion.div>
       )}
-    </div>
+    </Draggable>
   );
 };
 
