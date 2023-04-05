@@ -95,7 +95,7 @@ const Dashboard = () => {
 
   // submit a new task to the server
   const submitTask = async () => {
-    const newTaskDate = moment().week(currentWeek).day(newTaskDOW);
+    const newTaskDate = moment().week(currentWeek).day(newTaskDOW).set({hour: 8, minute: 0});
     const newTask: Partial<Task> = {
       content: newTaskContent,
       taskStatus: TaskStatus.ToDo,

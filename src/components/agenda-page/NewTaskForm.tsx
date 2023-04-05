@@ -34,7 +34,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    const newTaskDate = moment().week(week).day(dayOfWeek);
+    const newTaskDate = moment().week(week).day(dayOfWeek).set({hour: 8, minute: 0});
     const newTask: Partial<Task> = {
       content: newContent,
       taskStatus: TaskStatus.ToDo,
