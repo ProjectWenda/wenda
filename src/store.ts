@@ -3,13 +3,9 @@ import { selector, atom } from "recoil";
 import { DayTasks, Task } from "./schema/Task";
 import { User } from "./schema/User";
 
-const authCookie = document.cookie.replace(
-  /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
-  "$1"
-);
+const authCookie = document.cookie.replace(/(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
-const getDefaultTheme = () =>
-window.matchMedia("(prefers-color-scheme: dark)").matches;
+const getDefaultTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const getBaseTheme = () => {
   // returns true if dark mode, false if light mode
@@ -44,7 +40,7 @@ export const loadingState = atom<boolean>({
 export const weekState = atom<number>({
   key: "weekState",
   default: moment().week(),
-})
+});
 
 export const themeState = atom<boolean>({
   key: "themeState",
@@ -54,4 +50,4 @@ export const themeState = atom<boolean>({
 export const draggingState = atom<boolean>({
   key: "draggingState",
   default: false,
-})
+});

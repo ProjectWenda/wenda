@@ -63,7 +63,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
       <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
         <input
           value={newContent}
-          className="pl-1 rounded dark:bg-zinc-700 bg-white"
+          className="pl-1 rounded dark:bg-zinc-700 bg-white w-full"
           onChange={(e) => setNewContent(e.target.value)}
           autoFocus
         />

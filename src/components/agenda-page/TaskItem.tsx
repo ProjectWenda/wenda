@@ -18,7 +18,7 @@ interface TaskItemProps {
 
 const CONTENT_DIV_BASE_CLASSNAME =
   "bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow rounded mb-1 mx-1";
-const CONTENT_TEXT_BASE_CLASSNAME = "w-fit cursor-pointer";
+const CONTENT_TEXT_BASE_CLASSNAME = "w-fit cursor-pointer overflow-hidden text-ellipsis";
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
   const [dayTasks, setDayTasks] = useRecoilState(tasksState);
@@ -125,7 +125,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
               <input
                 onChange={(e) => setNewContent(e.target.value)}
                 value={newContent}
-                className="pl-1 rounded dark:bg-zinc-700 bg-white"
+                className="pl-1 rounded dark:bg-zinc-700 bg-white w-11/12"
                 autoFocus
               />
               <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />

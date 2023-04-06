@@ -31,6 +31,30 @@ export enum TaskStatus {
   Archived,
 }
 
+export const getTaskStatusString = (status: TaskStatus) => {
+  switch (status) {
+    case TaskStatus.ToDo:
+      return "To Do";
+    case TaskStatus.Completed:
+      return "Completed";
+    case TaskStatus.Archived:
+      return "Archived";
+  }
+};
+
+export const getTaskStatusFromString = (status: string) => {
+  switch (status) {
+    case "To Do":
+      return TaskStatus.ToDo;
+    case "Completed":
+      return TaskStatus.Completed;
+    case "Archived":
+      return TaskStatus.Archived;
+    default:
+      return TaskStatus.ToDo;
+  }
+}
+
 export interface Task {
   taskID: string;
   timeCreated: Moment;

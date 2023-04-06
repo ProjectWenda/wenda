@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -10,36 +10,24 @@ import {
   tasksState,
   weekState,
 } from "../store";
-import { DayTasks, EditOrderArgs, Task, TaskStatus } from "../schema/Task";
-import { AddTaskArgs } from "../schema/Task";
-import { addTask, editOrder, getTasks } from "../services/tasks";
-import { Weekday } from "../schema/Weekday";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheckCircle,
-  faCirclePlus,
-  faCircleXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { DayTasks, EditOrderArgs } from "../schema/Task";
+import { editOrder, getTasks } from "../services/tasks";
 import { useKeyPress } from "../hooks/useKeyPress";
-import IconButton from "../components/IconButton";
 import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
 import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
-import {
-  DragDropContext,
-  DropResult,
-} from "@hello-pangea/dnd";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { getTasksByDate } from "../domain/TaskUtils";
 import { getWeekdayFromDay } from "../domain/WeekdayUtils";
+import AddTaskModal from "../components/AddTaskModal";
+import CreateItemButton from "../components/agenda-page/CreateItemButton";
 
 let didInit = false;
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [newTaskContent, setNewTaskContent] = React.useState("");
-  const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
-  const [creatingItem, setCreatingItem] = React.useState(false);
+  const [showAddModal, setShowAddModal] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
   const [dayTasks, setDayTasksState] = useRecoilState(tasksState);
   const [loading, setLoading] = useRecoilState(loadingState);
@@ -93,43 +81,13 @@ const Dashboard = () => {
     fetchData();
   }, [loggedIn]);
 
-  // submit a new task to the server
-  const submitTask = async () => {
-    const newTaskDate = moment().week(currentWeek).day(newTaskDOW).set({hour: 8, minute: 0});
-    const newTask: Partial<Task> = {
-      content: newTaskContent,
-      taskStatus: TaskStatus.ToDo,
-      taskDate: newTaskDate,
-    };
-    const addArgs: AddTaskArgs = {
-      uid: userState!.authUID,
-      taskData: newTask,
-    };
-    const newTaskRes = await addTask(addArgs);
-    if (newTaskRes) {
-      const newDayTasks: DayTasks = {
-        ...dayTasks,
-        [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
-          tasks: [...getTasksByDate(dayTasks, newTaskDate), newTaskRes],
-        },
-      };
-      setDayTasksState(newDayTasks);
-    }
-
-    setNewTaskContent("");
-    setNewTaskDOW(0);
-    setCreatingItem(false);
-  };
-
   const dayOfWeekComponentsList: Array<JSX.Element> = [];
 
   // we need to recheck userState here because
   // it's not guaranteed to be initialized
   if (userState) {
     for (let i = 0; i < 7; i++) {
-      dayOfWeekComponentsList.push(
-        <DayOfWeekList dayOfWeek={i} key={i} uid={userState.authUID} />
-      );
+      dayOfWeekComponentsList.push(<DayOfWeekList dayOfWeek={i} key={i} uid={userState.authUID} />);
     }
   }
 
@@ -144,9 +102,7 @@ const Dashboard = () => {
       return;
     }
 
-    const sourceDate = moment()
-      .week(currentWeek)
-      .day(getWeekdayFromDay(result.source.droppableId));
+    const sourceDate = moment().week(currentWeek).day(getWeekdayFromDay(result.source.droppableId));
     const destinationDate = moment()
       .week(currentWeek)
       .day(getWeekdayFromDay(result.destination.droppableId));
@@ -169,27 +125,24 @@ const Dashboard = () => {
 
       // get the task before the newly reordered task if it exists
       const prevTaskID =
-        result.destination.index > 0
-          ? items[result.destination.index - 1].taskID
-          : "";
-      
+        result.destination.index > 0 ? items[result.destination.index - 1].taskID : "";
+
       // get the task after the newly reordered task if it exists
       const nextTaskID =
         result.destination.index < items.length - 1
           ? items[result.destination.index + 1].taskID
           : "";
 
-      const args : EditOrderArgs = {
+      const args: EditOrderArgs = {
         uid: userState!.authUID,
         taskID: reorderedItem.taskID,
         initialDate: reorderedItem.taskDate.toISOString(),
         newDate: reorderedItem.taskDate.toISOString(),
         prevTaskID,
         nextTaskID,
-      }
+      };
 
       await editOrder(args);
-
     } else {
       const sourceItems = [...sourceTasks];
       const destinationItems = [...destinationTasks];
@@ -213,93 +166,46 @@ const Dashboard = () => {
 
       // get the task before the newly reordered task if it exists
       const prevTaskID =
-        result.destination.index > 0
-          ? destinationItems[result.destination.index - 1].taskID
-          : "";
-      
+        result.destination.index > 0 ? destinationItems[result.destination.index - 1].taskID : "";
+
       // get the task after the newly reordered task if it exists
       const nextTaskID =
         result.destination.index < destinationItems.length - 1
           ? destinationItems[result.destination.index + 1].taskID
           : "";
 
-      const args : EditOrderArgs = {
+      const args: EditOrderArgs = {
         uid: userState!.authUID,
         taskID: reorderedItem.taskID,
         initialDate: reorderedItem.taskDate.toISOString(),
         newDate: newDate.toISOString(),
         prevTaskID,
         nextTaskID,
-      }
+      };
 
       await editOrder(args);
-
     }
   };
 
-  const clearCreating = () => {
-    setNewTaskContent("");
-    setNewTaskDOW(0);
-    setCreatingItem(false);
-  };
-
-  useKeyPress(["Escape"], clearCreating);
-  useKeyPress(["i"], () => setCreatingItem(true), null, true);
+  useKeyPress(["i"], () => setShowAddModal(true), null, true);
 
   return (
-    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
+    <div className="bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col w-dashboard min-w-[1000px]">
       {!loading ? (
         <>
-          <div className="flex gap-3 items-center mb-3 justify-between">
-            {!creatingItem ? (
-              <div
-                className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded shadow ml-2 items-center"
-                onClick={() => setCreatingItem(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) =>
-                  e.key === "Enter" ? setCreatingItem(true) : null
-                }
-                title="ctrl+i"
-              >
-                <FontAwesomeIcon
-                  icon={faCirclePlus}
-                  className="hover:text-slate-300 rounded-full"
-                  size="sm"
-                />
-                <p className="text-sm">Create item</p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 ml-1">
-                <input
-                  onChange={(e) => setNewTaskContent(e.target.value)}
-                  value={newTaskContent}
-                  className="rounded p-1 dark:bg-zinc-700 bg-white"
-                  placeholder="New task content.."
-                  autoFocus
-                />
-                <select
-                  onChange={(e) => setNewTaskDOW(+e.target.value)}
-                  value={newTaskDOW}
-                  className="h-8 rounded dark:bg-zinc-700 bg-white"
-                >
-                  <option value={0}>Sunday</option>
-                  <option value={1}>Monday</option>
-                  <option value={2}>Tuesday</option>
-                  <option value={3}>Wednesday</option>
-                  <option value={4}>Thursday</option>
-                  <option value={5}>Friday</option>
-                  <option value={6}>Saturday</option>
-                </select>
-                <IconButton icon={faCheckCircle} onClick={submitTask} />
-                <IconButton icon={faCircleXmark} onClick={clearCreating} />
-              </div>
+          <div className="flex gap-3 items-center mb-3 justify-between ml-1">
+            <CreateItemButton createItemAction={() => setShowAddModal(true)} />
+            {showAddModal && (
+              <AddTaskModal
+                onClose={() => setShowAddModal(false)}
+                onSubmit={() => setShowAddModal(false)}
+              />
             )}
             <WeekSwitcher />
-            <div className="w-[107.406px]"></div>
+            <div className="w-[8.5rem]"></div>
           </div>
           <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-            <div className="flex flex-1">{dayOfWeekComponentsList}</div>
+            <div className="grid grid-cols-7 gap-1 h-full mx-1">{dayOfWeekComponentsList}</div>
           </DragDropContext>
         </>
       ) : (

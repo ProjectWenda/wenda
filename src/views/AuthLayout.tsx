@@ -1,11 +1,7 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Outlet } from "react-router-dom";
-import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
-import LogoutButton from "../components/LogoutButton";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, loggedInState, themeState } from "../store";
-import UserImage from "../components/UserImage";
 import UserTag from "../components/UserTag";
 import UserMenu from "../components/UserMenu";
 import { getUser } from "../services/discord";
@@ -41,8 +37,8 @@ const AuthLayout = () => {
   const showUserInfo = React.useMemo(() => loggedIn && (discordUserRes.id !== ""), [loggedIn, discordUserRes])
 
   return (
-    <div className={isDarkMode ? "dark h-full" : "light h-full"}>
-      <div className="h-full dark:bg-zinc-900 bg-white">
+    <div className={`flex flex-1 ${isDarkMode ? "dark" : "light"}`}>
+      <div className="dark:bg-zinc-900 bg-white flex flex-col flex-1">
         <div className="flex dark:bg-light-gray bg-zinc-300 max-w-none h-20 items-center justify-end">
           <div className="w-[175px]"></div>
         {loggedIn && (
@@ -60,7 +56,7 @@ const AuthLayout = () => {
             {showUserInfo && <UserMenu user={discordUserRes} />}
           </div>
         </div>
-        <div className="flex dark:text-white mx-5 my-2 h-5/6">
+        <div className="flex dark:text-white mx-5 mt-4 mb-10 flex-1 justify-center">
           <Outlet />
         </div>
       </div>
