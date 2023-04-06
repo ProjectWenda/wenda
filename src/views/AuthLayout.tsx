@@ -37,8 +37,8 @@ const AuthLayout = () => {
   const showUserInfo = React.useMemo(() => loggedIn && (discordUserRes.id !== ""), [loggedIn, discordUserRes])
 
   return (
-    <div className={isDarkMode ? "dark h-full" : "light h-full"}>
-      <div className="h-full dark:bg-zinc-900 bg-white">
+    <div className={`flex flex-1 ${isDarkMode ? "dark" : "light"}`}>
+      <div className="dark:bg-zinc-900 bg-white flex flex-col flex-1">
         <div className="flex dark:bg-light-gray bg-zinc-300 max-w-none h-20 items-center justify-end">
           <div className="w-[175px]"></div>
         {loggedIn && (
@@ -56,7 +56,7 @@ const AuthLayout = () => {
             {showUserInfo && <UserMenu user={discordUserRes} />}
           </div>
         </div>
-        <div className="flex dark:text-white mx-5 my-2 h-5/6 justify-center">
+        <div className="flex dark:text-white mx-5 my-4 flex-1 justify-center">
           <Outlet />
         </div>
       </div>

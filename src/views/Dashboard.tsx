@@ -190,7 +190,7 @@ const Dashboard = () => {
   useKeyPress(["i"], () => setShowAddModal(true), null, true);
 
   return (
-    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col mt-4 w-dashboard min-w-[1000px]">
+    <div className="bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col w-dashboard min-w-[1000px]">
       {!loading ? (
         <>
           <div className="flex gap-3 items-center mb-3 justify-between ml-1">
