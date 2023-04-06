@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -10,14 +10,9 @@ import {
   tasksState,
   weekState,
 } from "../store";
-import { DayTasks, EditOrderArgs, Task, TaskStatus } from "../schema/Task";
-import { AddTaskArgs } from "../schema/Task";
-import { addTask, editOrder, getTasks } from "../services/tasks";
-import { Weekday } from "../schema/Weekday";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle, faCirclePlus, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { DayTasks, EditOrderArgs } from "../schema/Task";
+import { editOrder, getTasks } from "../services/tasks";
 import { useKeyPress } from "../hooks/useKeyPress";
-import IconButton from "../components/IconButton";
 import { authUser } from "../services/auth";
 import { ColorRing } from "react-loader-spinner";
 import DayOfWeekList from "../components/agenda-page/DayOfWeekList";
