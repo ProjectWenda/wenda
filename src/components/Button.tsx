@@ -1,4 +1,8 @@
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as React from "react";
+import { useRecoilValue } from "recoil";
+import { themeState } from "../store";
 
 export enum ButtonType {
   Primary = "primary",
@@ -15,9 +19,24 @@ type ButtonProps = React.PropsWithChildren & {
   className?: string;
   type?: ButtonType;
   size?: "xs" | "sm" | "md" | "lg";
+  icon?: IconDefinition;
+  iconPosition?: "left" | "right";
+  notEnterable?: boolean;
 };
 
-const Button: React.FC<ButtonProps> = ({ disabled, onClick, className, type, size, children }) => {
+const Button: React.FC<ButtonProps> = ({
+  disabled,
+  onClick,
+  className,
+  type,
+  size,
+  children,
+  icon,
+  iconPosition,
+  notEnterable,
+}) => {
+  const theme = useRecoilValue(themeState);
+
   const buttonClassName = `px-2 py-1 rounded-md ${className} ${
     type === ButtonType.Primary
       ? "bg-disc-blue text-white"
@@ -36,9 +55,29 @@ const Button: React.FC<ButtonProps> = ({ disabled, onClick, className, type, siz
     size === "xs" ? "text-xs" : size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-md"
   }`;
 
+  const contentClassName = `flex items-center justify-center gap-2 ${
+    icon && iconPosition === "right" ? "flex-row-reverse" : "flex-row"
+  } ${theme ? "text-white" : "text-black"}`;
+
   return (
-    <button disabled={disabled} onClick={onClick} className={buttonClassName}>
-      {children}
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={buttonClassName}
+      onKeyDown={
+        !notEnterable && onClick
+          ? (e) => {
+              if (e.key === "Enter") {
+                onClick();
+              }
+            }
+          : undefined
+      }
+    >
+      <div className={contentClassName}>
+        {icon && <FontAwesomeIcon icon={icon} />}
+        {children}
+      </div>
     </button>
   );
 };

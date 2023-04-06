@@ -4,6 +4,7 @@ import { useRecoilValue } from "recoil";
 import { themeState } from "../store";
 import { motion } from "framer-motion";
 import Button, { ButtonType } from "./Button";
+import { faCancel } from "@fortawesome/free-solid-svg-icons";
 
 type ModalProps = React.PropsWithChildren & {
   title: string;
