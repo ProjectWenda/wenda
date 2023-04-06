@@ -1,11 +1,7 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Outlet } from "react-router-dom";
-import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
-import LogoutButton from "../components/LogoutButton";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, loggedInState, themeState } from "../store";
-import UserImage from "../components/UserImage";
 import UserTag from "../components/UserTag";
 import UserMenu from "../components/UserMenu";
 import { getUser } from "../services/discord";
@@ -60,7 +56,7 @@ const AuthLayout = () => {
             {showUserInfo && <UserMenu user={discordUserRes} />}
           </div>
         </div>
-        <div className="flex dark:text-white mx-5 my-2 h-5/6">
+        <div className="flex dark:text-white mx-5 my-2 h-5/6 justify-center">
           <Outlet />
         </div>
       </div>

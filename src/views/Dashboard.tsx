@@ -248,7 +248,7 @@ const Dashboard = () => {
   useKeyPress(["i"], () => setCreatingItem(true), null, true);
 
   return (
-    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 w-full flex flex-col">
+    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col mt-4 w-4/5">
       {!loading ? (
         <>
           <div className="flex gap-3 items-center mb-3 justify-between">
@@ -301,7 +301,7 @@ const Dashboard = () => {
             <div className="w-[107.406px]"></div>
           </div>
           <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-            <div className="flex flex-1">{dayOfWeekComponentsList}</div>
+            <div className="grid grid-cols-7 gap-1 h-full">{dayOfWeekComponentsList}</div>
           </DragDropContext>
         </>
       ) : (

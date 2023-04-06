@@ -40,7 +40,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
 
   const contClassName = React.useMemo(
     () =>
-      `group w-full mr-1 first:ml-1 last:border-r-0 dark:border-x-neutral-500 bg-gray-200 dark:bg-zinc-700 ${
+      `group w-full bg-gray-200 dark:bg-zinc-700 ${
         isToday && "border-t-4 border-t-disc-blue"
       }`,
     [isToday]
