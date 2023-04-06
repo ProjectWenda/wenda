@@ -40,8 +40,9 @@ const Modal: React.FC<ModalProps> = ({
   const defaultFontColor = theme ? "text-white" : "text-black";
   const defaultModalHeaderBackgroundColor = theme ? "bg-zinc-700" : "bg-zinc-200";
   const defaultBodyBackgroundColor = theme ? "bg-zinc-800" : "bg-white";
+  const defaultPageTheme = theme ? "dark" : "light";
 
-  const modalPageClassName = `fixed flex items-center justify-center inset-0 overflow-hidden ${
+  const modalPageClassName = `fixed flex items-center justify-center inset-0 overflow-hidden ${defaultPageTheme} ${
     theme ? "bg-zinc-800/70" : "bg-zinc-400/60"
   }`;
 
@@ -50,7 +51,7 @@ const Modal: React.FC<ModalProps> = ({
   const modalHeaderClassName = `text-lg font-semibold rounded-t-lg p-2
   ${defaultModalHeaderBackgroundColor} ${defaultFontColor} ${headerClassName}`;
 
-  const modalBodyClassName = `p-2 ${defaultFontColor} ${height || "h-[30em]"} 
+  const modalBodyClassName = `p-4 ${defaultFontColor} ${height || "h-[30em]"} 
   ${width || "w-[25em]"} ${defaultBodyBackgroundColor} ${containerClassName}`;
 
   const modalFooterClassName = `rounded-b-lg p-2 min-h-[2.5em] flex gap-1 justify-end ${defaultModalHeaderBackgroundColor} ${defaultFontColor}`;

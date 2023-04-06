@@ -1,8 +1,6 @@
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as React from "react";
-import { useRecoilValue } from "recoil";
-import { themeState } from "../store";
 
 export enum ButtonType {
   Primary = "primary",
@@ -35,7 +33,6 @@ const Button: React.FC<ButtonProps> = ({
   iconPosition,
   notEnterable,
 }) => {
-  const theme = useRecoilValue(themeState);
 
   const buttonClassName = `px-2 py-1 rounded-md ${className} ${
     type === ButtonType.Primary
@@ -55,9 +52,9 @@ const Button: React.FC<ButtonProps> = ({
     size === "xs" ? "text-xs" : size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-md"
   }`;
 
-  const contentClassName = `flex items-center justify-center gap-2 ${
+  const contentClassName = `flex items-center justify-center gap-2 text-inherit ${
     icon && iconPosition === "right" ? "flex-row-reverse" : "flex-row"
-  } ${theme ? "text-white" : "text-black"}`;
+  }`;
 
   return (
     <button
@@ -75,7 +72,7 @@ const Button: React.FC<ButtonProps> = ({
       }
     >
       <div className={contentClassName}>
-        {icon && <FontAwesomeIcon icon={icon} />}
+        {icon && <FontAwesomeIcon icon={icon}/>}
         {children}
       </div>
     </button>

@@ -32,8 +32,6 @@ let didInit = false;
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [newTaskContent, setNewTaskContent] = React.useState("");
-  const [newTaskDOW, setNewTaskDOW] = React.useState<Weekday>(0);
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [userState, setUserState] = useRecoilState(authUserState);
   const [dayTasks, setDayTasksState] = useRecoilState(tasksState);
@@ -87,34 +85,6 @@ const Dashboard = () => {
   React.useEffect(() => {
     fetchData();
   }, [loggedIn]);
-
-  // submit a new task to the server
-  const submitTask = async () => {
-    const newTaskDate = moment().week(currentWeek).day(newTaskDOW).set({ hour: 8, minute: 0 });
-    const newTask: Partial<Task> = {
-      content: newTaskContent,
-      taskStatus: TaskStatus.ToDo,
-      taskDate: newTaskDate,
-    };
-    const addArgs: AddTaskArgs = {
-      uid: userState!.authUID,
-      taskData: newTask,
-    };
-    const newTaskRes = await addTask(addArgs);
-    if (newTaskRes) {
-      const newDayTasks: DayTasks = {
-        ...dayTasks,
-        [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
-          tasks: [...getTasksByDate(dayTasks, newTaskDate), newTaskRes],
-        },
-      };
-      setDayTasksState(newDayTasks);
-    }
-
-    setNewTaskContent("");
-    setNewTaskDOW(0);
-    setShowAddModal(false);
-  };
 
   const dayOfWeekComponentsList: Array<JSX.Element> = [];
 
@@ -222,73 +192,22 @@ const Dashboard = () => {
     }
   };
 
-  const clearCreating = () => {
-    setNewTaskContent("");
-    setNewTaskDOW(0);
-    setShowAddModal(false);
-  };
-
-  useKeyPress(["Escape"], clearCreating);
   useKeyPress(["i"], () => setShowAddModal(true), null, true);
 
   return (
-    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col mt-4 w-4/5">
+    <div className="h-full bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col mt-4 w-4/5 min-w-[1000px]">
       {!loading ? (
         <>
           <div className="flex gap-3 items-center mb-3 justify-between ml-1">
             <CreateItemButton createItemAction={() => setShowAddModal(true)} />
-            {/* // <div
-              //   className="flex gap-2 bg-zinc-300 dark:bg-zinc-700 cursor-pointer p-1.5 rounded shadow ml-2 items-center"
-              //   onClick={() => setCreatingItem(true)}
-              //   role="button"
-              //   tabIndex={0}
-              //   onKeyDown={(e) =>
-              //     e.key === "Enter" ? setCreatingItem(true) : null
-              //   }
-              //   title="ctrl+i"
-              // >
-              //   <FontAwesomeIcon
-              //     icon={faCirclePlus}
-              //     className="hover:text-slate-300 rounded-full"
-              //     size="sm"
-              //   />
-              //   <p className="text-sm">Create item</p>
-              // </div> */}
-
             {showAddModal && (
               <AddTaskModal
                 onClose={() => setShowAddModal(false)}
                 onSubmit={() => setShowAddModal(false)}
               />
             )}
-
-            {/* // <div className="flex items-center gap-1 ml-1">
-              //   <input
-              //     onChange={(e) => setNewTaskContent(e.target.value)}
-              //     value={newTaskContent}
-              //     className="rounded p-1 dark:bg-zinc-700 bg-white"
-              //     placeholder="New task content.."
-              //     autoFocus
-              //   />
-              //   <select
-              //     onChange={(e) => setNewTaskDOW(+e.target.value)}
-              //     value={newTaskDOW}
-              //     className="h-8 rounded dark:bg-zinc-700 bg-white"
-              //   >
-              //     <option value={0}>Sunday</option>
-              //     <option value={1}>Monday</option>
-              //     <option value={2}>Tuesday</option>
-              //     <option value={3}>Wednesday</option>
-              //     <option value={4}>Thursday</option>
-              //     <option value={5}>Friday</option>
-              //     <option value={6}>Saturday</option>
-              //   </select>
-              //   <IconButton icon={faCheckCircle} onClick={submitTask} />
-              //   <IconButton icon={faCircleXmark} onClick={clearCreating} />
-              // </div> */}
-
             <WeekSwitcher />
-            <div className="w-[107.406px]"></div>
+            <div className="w-[8.5rem]"></div>
           </div>
           <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
             <div className="grid grid-cols-7 gap-1 h-full mx-1">{dayOfWeekComponentsList}</div>
