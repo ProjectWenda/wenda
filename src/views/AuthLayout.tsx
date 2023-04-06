@@ -56,7 +56,7 @@ const AuthLayout = () => {
             {showUserInfo && <UserMenu user={discordUserRes} />}
           </div>
         </div>
-        <div className="flex dark:text-white mx-5 my-4 flex-1 justify-center">
+        <div className="flex dark:text-white mx-5 mt-4 mb-10 flex-1 justify-center">
           <Outlet />
         </div>
       </div>
