@@ -19,6 +19,7 @@ module.exports = {
         "disc-dark-2": "#36393e",
         "disc-dark-3": "#282b30",
         "disc-dark-4": "#1e2124",
+        "red-450": "rgb(233 102 102)",
       },
     },
   },
