@@ -1,7 +1,7 @@
 import Modal from "./Modal";
 
 const AddTaskModal = () => {
-  return <Modal>
+  return <Modal title="Add a task">
     Adding a task!
   </Modal>
 }
