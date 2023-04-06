@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const theme = useRecoilValue(themeState);
   const defaultFontColor = theme ? "text-white" : "text-black";
-  const defaultModalHeaderBackgroundColor = theme ? "bg-zinc-700" : "bg-zinc-200";
+  const defaultHeaderBackgroundColor = theme ? "bg-zinc-700" : "bg-zinc-200";
   const defaultBodyBackgroundColor = theme ? "bg-zinc-800" : "bg-white";
   const defaultPageTheme = theme ? "dark" : "light";
 
@@ -49,12 +49,12 @@ const Modal: React.FC<ModalProps> = ({
   const modalContainerClassName = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col shadow-lg`;
 
   const modalHeaderClassName = `text-lg font-semibold rounded-t-lg p-2
-  ${defaultModalHeaderBackgroundColor} ${defaultFontColor} ${headerClassName}`;
+  ${defaultHeaderBackgroundColor} ${defaultFontColor} ${headerClassName}`;
 
   const modalBodyClassName = `p-4 ${defaultFontColor} ${height || "h-[30em]"} 
   ${width || "w-[25em]"} ${defaultBodyBackgroundColor} ${containerClassName}`;
 
-  const modalFooterClassName = `rounded-b-lg p-2 min-h-[2.5em] flex gap-1 justify-end ${defaultModalHeaderBackgroundColor} ${defaultFontColor}`;
+  const modalFooterClassName = `rounded-b-lg p-2 min-h-[2.5em] flex gap-1 justify-end ${defaultBodyBackgroundColor} ${defaultFontColor}`;
 
   const enterAction = React.useMemo(() => {
     if (onClickPrimary != undefined && !primaryClickDisabled) {

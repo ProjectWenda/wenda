@@ -64,7 +64,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
       title="Add a task"
       onClose={onClose}
       onClickPrimary={submitTask}
-      height="h-40"
+      height="h-[8.5rem]"
       primaryClickDisabled={!validSubmit}
     >
       <div className="flex flex-col gap-2">
