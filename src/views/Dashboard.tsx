@@ -32,6 +32,7 @@ import {
 } from "@hello-pangea/dnd";
 import { getTasksByDate } from "../domain/TaskUtils";
 import { getWeekdayFromDay } from "../domain/WeekdayUtils";
+import AddTaskModal from "../components/AddTaskModal";
 
 let didInit = false;
 
@@ -270,30 +271,31 @@ const Dashboard = () => {
                 <p className="text-sm">Create item</p>
               </div>
             ) : (
-              <div className="flex items-center gap-1 ml-1">
-                <input
-                  onChange={(e) => setNewTaskContent(e.target.value)}
-                  value={newTaskContent}
-                  className="rounded p-1 dark:bg-zinc-700 bg-white"
-                  placeholder="New task content.."
-                  autoFocus
-                />
-                <select
-                  onChange={(e) => setNewTaskDOW(+e.target.value)}
-                  value={newTaskDOW}
-                  className="h-8 rounded dark:bg-zinc-700 bg-white"
-                >
-                  <option value={0}>Sunday</option>
-                  <option value={1}>Monday</option>
-                  <option value={2}>Tuesday</option>
-                  <option value={3}>Wednesday</option>
-                  <option value={4}>Thursday</option>
-                  <option value={5}>Friday</option>
-                  <option value={6}>Saturday</option>
-                </select>
-                <IconButton icon={faCheckCircle} onClick={submitTask} />
-                <IconButton icon={faCircleXmark} onClick={clearCreating} />
-              </div>
+              <AddTaskModal />
+              // <div className="flex items-center gap-1 ml-1">
+              //   <input
+              //     onChange={(e) => setNewTaskContent(e.target.value)}
+              //     value={newTaskContent}
+              //     className="rounded p-1 dark:bg-zinc-700 bg-white"
+              //     placeholder="New task content.."
+              //     autoFocus
+              //   />
+              //   <select
+              //     onChange={(e) => setNewTaskDOW(+e.target.value)}
+              //     value={newTaskDOW}
+              //     className="h-8 rounded dark:bg-zinc-700 bg-white"
+              //   >
+              //     <option value={0}>Sunday</option>
+              //     <option value={1}>Monday</option>
+              //     <option value={2}>Tuesday</option>
+              //     <option value={3}>Wednesday</option>
+              //     <option value={4}>Thursday</option>
+              //     <option value={5}>Friday</option>
+              //     <option value={6}>Saturday</option>
+              //   </select>
+              //   <IconButton icon={faCheckCircle} onClick={submitTask} />
+              //   <IconButton icon={faCircleXmark} onClick={clearCreating} />
+              // </div>
             )}
             <WeekSwitcher />
             <div className="w-[107.406px]"></div>
