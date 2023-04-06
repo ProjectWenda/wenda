@@ -14,7 +14,7 @@ type ButtonProps = React.PropsWithChildren & {
   onClick?: () => void;
   className?: string;
   type?: ButtonType;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 };
 
 const Button: React.FC<ButtonProps> = ({ disabled, onClick, className, type, size, children }) => {
@@ -32,7 +32,9 @@ const Button: React.FC<ButtonProps> = ({ disabled, onClick, className, type, siz
       : type === ButtonType.Info
       ? "bg-blue-500 text-white"
       : "bg-disc-blue text-white"
-  } ${size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-md"}`;
+  } ${
+    size === "xs" ? "text-xs" : size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-md"
+  }`;
 
   return (
     <button disabled={disabled} onClick={onClick} className={buttonClassName}>

@@ -3,10 +3,17 @@ import { createPortal } from "react-dom";
 import { useRecoilValue } from "recoil";
 import { themeState } from "../store";
 import { motion } from "framer-motion";
+import Button, { ButtonType } from "./Button";
 
 type ModalProps = React.PropsWithChildren & {
   title: string;
-  onClose?: () => void;
+  onClose: () => void;
+  onClickPrimary?: () => void;
+  onClickSecondary?: () => void;
+  primaryClickDisabled?: boolean;
+  secondaryClickDisabled?: boolean;
+  primaryClickText?: string;
+  secondaryClickText?: string;
   containerClassName?: string;
   headerClassName?: string;
   height?: string;
@@ -16,6 +23,13 @@ type ModalProps = React.PropsWithChildren & {
 const Modal: React.FC<ModalProps> = ({
   children,
   title,
+  onClose,
+  onClickPrimary,
+  primaryClickDisabled,
+  primaryClickText,
+  onClickSecondary,
+  secondaryClickDisabled,
+  secondaryClickText,
   containerClassName,
   headerClassName,
   height,
@@ -27,7 +41,7 @@ const Modal: React.FC<ModalProps> = ({
   const defaultBodyBackgroundColor = theme ? "bg-zinc-800" : "bg-white";
 
   const modalPageClassName = `fixed flex items-center justify-center inset-0 overflow-hidden ${
-    theme ? "bg-zinc-800/60" : "bg-zinc-400/60"
+    theme ? "bg-zinc-800/70" : "bg-zinc-400/60"
   }`;
 
   const modalContainerClassName = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col shadow-lg`;
@@ -38,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({
   const modalBodyClassName = `p-2 ${defaultFontColor} ${height || "h-[30em]"} 
   ${width || "w-[25em]"} ${defaultBodyBackgroundColor} ${containerClassName}`;
 
-  const modalFooterClassName = `rounded-b-lg p-2 ${defaultModalHeaderBackgroundColor} ${defaultFontColor} min-h-[3em]`
+  const modalFooterClassName = `rounded-b-lg p-2 min-h-[2.5em] flex gap-1 justify-end ${defaultModalHeaderBackgroundColor} ${defaultFontColor}`;
 
   const modalJSX = (
     <div className={modalPageClassName}>
@@ -53,7 +67,21 @@ const Modal: React.FC<ModalProps> = ({
         {/* modal body */}
         <div className={modalBodyClassName}>{children}</div>
         {/* modal footer */}
-        <div className={modalFooterClassName}></div>
+        <div className={modalFooterClassName}>
+          {onClickPrimary && (
+            <Button onClick={onClickPrimary} disabled={primaryClickDisabled} size="sm">
+              {primaryClickText || "Confirm"}
+            </Button>
+          )}
+          <Button
+            onClick={onClickSecondary || onClose}
+            disabled={secondaryClickDisabled}
+            type={ButtonType.Danger}
+            size="sm"
+          >
+            {secondaryClickText || "Cancel"}
+          </Button>
+        </div>
       </motion.div>
     </div>
   );

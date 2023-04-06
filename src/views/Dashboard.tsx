@@ -271,7 +271,7 @@ const Dashboard = () => {
                 <p className="text-sm">Create item</p>
               </div>
             ) : (
-              <AddTaskModal />
+              <AddTaskModal onClose={() => setCreatingItem(false)} onSubmit={() => setCreatingItem(false)}/>
               // <div className="flex items-center gap-1 ml-1">
               //   <input
               //     onChange={(e) => setNewTaskContent(e.target.value)}
