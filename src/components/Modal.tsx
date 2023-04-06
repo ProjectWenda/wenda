@@ -4,7 +4,7 @@ import { useRecoilValue } from "recoil";
 import { themeState } from "../store";
 import { motion } from "framer-motion";
 import Button, { ButtonType } from "./Button";
-import { faCancel } from "@fortawesome/free-solid-svg-icons";
+import { useKeyPress } from "../hooks/useKeyPress";
 
 type ModalProps = React.PropsWithChildren & {
   title: string;
@@ -55,6 +55,16 @@ const Modal: React.FC<ModalProps> = ({
   ${width || "w-[25em]"} ${defaultBodyBackgroundColor} ${containerClassName}`;
 
   const modalFooterClassName = `rounded-b-lg p-2 min-h-[2.5em] flex gap-1 justify-end ${defaultModalHeaderBackgroundColor} ${defaultFontColor}`;
+
+  const enterAction = React.useMemo(() => {
+    if (onClickPrimary != undefined && !primaryClickDisabled) {
+      return onClickPrimary;
+    }
+    return () => null;
+  }, [onClickPrimary, primaryClickDisabled]);
+
+  useKeyPress(["Enter"], enterAction);
+  useKeyPress(["Escape"], onClose);
 
   const modalJSX = (
     <div className={modalPageClassName}>

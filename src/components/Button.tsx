@@ -33,28 +33,52 @@ const Button: React.FC<ButtonProps> = ({
   iconPosition,
   notEnterable,
 }) => {
+  const getTypeText = React.useCallback(() => {
+    switch (type) {
+      case ButtonType.Primary:
+        return "bg-disc-blue text-white";
+      case ButtonType.Secondary:
+        return "bg-disc-blue/20 text-disc-blue";
+      case ButtonType.Danger:
+        return "bg-red-450 text-white";
+      case ButtonType.Warning:
+        return "bg-yellow-500 text-white";
+      case ButtonType.Success:
+        return "bg-green-500 text-white";
+      case ButtonType.Info:
+        return "bg-blue-500 text-white";
+      default:
+        return "bg-disc-blue text-white";
+    }
+  }, [type]);
 
-  const buttonClassName = React.useMemo(() => `px-2 py-1 rounded-md ${className} ${
-    type === ButtonType.Primary
-      ? "bg-disc-blue text-white"
-      : type === ButtonType.Secondary
-      ? "bg-disc-blue/20 text-disc-blue"
-      : type === ButtonType.Danger
-      ? "bg-red-450 text-white"
-      : type === ButtonType.Warning
-      ? "bg-yellow-500 text-white"
-      : type === ButtonType.Success
-      ? "bg-green-500 text-white"
-      : type === ButtonType.Info
-      ? "bg-blue-500 text-white"
-      : "bg-disc-blue text-white"
-  } ${
-    size === "xs" ? "text-xs" : size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-md"
-  } ${disabled ? "opacity-50 " : "hover:opacity-80"}`, [className, disabled, size, type]);
+  const getSizeText = React.useCallback(() => {
+    switch (size) {
+      case "xs":
+        return "text-xs";
+      case "sm":
+        return "text-sm";
+      case "lg":
+        return "text-lg";
+      default:
+        return "text-md";
+    }
+  }, [size]);
 
-  const contentClassName = React.useMemo(() => `flex items-center justify-center gap-2 text-inherit ${
-    icon && iconPosition === "right" ? "flex-row-reverse" : "flex-row"
-  }`, [icon, iconPosition]);
+  const buttonClassName = React.useMemo(
+    () => `px-2 py-1 rounded-md ${className} 
+    ${getTypeText()} ${getSizeText()} 
+    ${disabled ? "opacity-50 " : "hover:opacity-80"}`,
+    [className, disabled, size, type]
+  );
+
+  const contentClassName = React.useMemo(
+    () =>
+      `flex items-center justify-center gap-2 text-inherit ${
+        icon && iconPosition === "right" ? "flex-row-reverse" : "flex-row"
+      }`,
+    [icon, iconPosition]
+  );
 
   return (
     <button
@@ -72,7 +96,7 @@ const Button: React.FC<ButtonProps> = ({
       }
     >
       <div className={contentClassName}>
-        {icon && <FontAwesomeIcon icon={icon}/>}
+        {icon && <FontAwesomeIcon icon={icon} />}
         {children}
       </div>
     </button>

@@ -25,7 +25,7 @@ interface IconButtonProps {
 
 const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, className, size, disabled }) => {
   const baseClassName = React.useMemo(
-    () => "cursor-pointer " + (disabled ? `opacity-40` : "") + (className ? ` ${className}` : ""),
+    () => `cursor-pointer ${disabled ? `opacity-40` : ""} ${className}`,
     [className, disabled, size]
   );
   const computedClassName = React.useMemo(
