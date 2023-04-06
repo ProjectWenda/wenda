@@ -2,7 +2,14 @@ import * as React from "react";
 import Modal from "./Modal";
 import moment, { Moment } from "moment";
 import Field, { SelectField } from "./Field";
-import { AddTaskArgs, DayTasks, Task, TaskStatus, getTaskStatusString } from "../schema/Task";
+import {
+  AddTaskArgs,
+  DayTasks,
+  Task,
+  TaskStatus,
+  getTaskStatusFromString,
+  getTaskStatusString,
+} from "../schema/Task";
 import { mapEnum } from "../domain/codeUtils";
 import { getTasksByDate } from "../domain/TaskUtils";
 import { addTask } from "../services/tasks";
@@ -30,7 +37,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
     const timedTaskDate = newTaskDate.set({ hour: 8, minute: 0 });
     const newTask: Partial<Task> = {
       content: newTaskContent,
-      taskStatus: TaskStatus.ToDo,
+      taskStatus: newTaskStatus,
       taskDate: timedTaskDate,
     };
     const addArgs: AddTaskArgs = {
@@ -48,12 +55,18 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
       setTasks(newDayTasks);
     }
     onSubmit();
-  }, [newTaskContent, newTaskDate, tasks, userState, onSubmit]);
+  }, [newTaskContent, newTaskDate, tasks, userState, onSubmit, newTaskStatus]);
 
   const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
 
   return (
-    <Modal title="Add a task" onClose={onClose} onClickPrimary={submitTask} height="h-40" primaryClickDisabled={!validSubmit}>
+    <Modal
+      title="Add a task"
+      onClose={onClose}
+      onClickPrimary={submitTask}
+      height="h-40"
+      primaryClickDisabled={!validSubmit}
+    >
       <div className="flex flex-col gap-2">
         <Field
           type="text"
@@ -72,7 +85,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
         <SelectField
           label="Task Status:"
           value={getTaskStatusString(newTaskStatus)}
-          onChange={(e) => setNewTaskStatus(+e.target.value as TaskStatus)}
+          onChange={(e) => setNewTaskStatus(getTaskStatusFromString(e.target.value))}
           options={taskStatusStrings}
         />
       </div>
