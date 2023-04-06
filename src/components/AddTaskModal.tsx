@@ -26,7 +26,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
     getTaskStatusString(status)
   );
 
-  const submitTask = async () => {
+  const submitTask = React.useCallback(async () => {
     const timedTaskDate = newTaskDate.set({ hour: 8, minute: 0 });
     const newTask: Partial<Task> = {
       content: newTaskContent,
@@ -48,10 +48,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
       setTasks(newDayTasks);
     }
     onSubmit();
-  };
+  }, [newTaskContent, newTaskDate, tasks, userState, onSubmit]);
+
+  const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
 
   return (
-    <Modal title="Add a task" onClose={onClose} onClickPrimary={submitTask} height="h-40">
+    <Modal title="Add a task" onClose={onClose} onClickPrimary={submitTask} height="h-40" primaryClickDisabled={!validSubmit}>
       <div className="flex flex-col gap-2">
         <Field
           type="text"

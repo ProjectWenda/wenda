@@ -1,3 +1,4 @@
+import * as React from "react";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -22,20 +23,15 @@ interface IconButtonProps {
     | "9xl";
 }
 
-const IconButton: React.FC<IconButtonProps> = ({
-  icon,
-  onClick,
-  className,
-  size,
-  disabled,
-}) => {
-  const baseClassName =
-    "cursor-pointer " +
-    (disabled ? `opacity-40` : "") +
-    (className ? ` ${className}` : "");
-  const computedClassName = size
-    ? `text-${size} ${baseClassName}`
-    : `${baseClassName}`;
+const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, className, size, disabled }) => {
+  const baseClassName = React.useMemo(
+    () => "cursor-pointer " + (disabled ? `opacity-40` : "") + (className ? ` ${className}` : ""),
+    [className, disabled, size]
+  );
+  const computedClassName = React.useMemo(
+    () => (size ? `text-${size} ${baseClassName}` : `${baseClassName}`),
+    [baseClassName, size]
+  );
 
   return (
     <FontAwesomeIcon
@@ -44,9 +40,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      onKeyDown={
-        onClick != null ? (e) => e.key === "Enter" && onClick() : undefined
-      }
+      onKeyDown={onClick != null ? (e) => e.key === "Enter" && onClick() : undefined}
     />
   );
 };
