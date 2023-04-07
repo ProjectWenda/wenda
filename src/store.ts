@@ -32,6 +32,17 @@ export const tasksState = atom<DayTasks>({
   default: {},
 });
 
+export const combinedTasksState = selector<Task[]>({
+  key: "combinedTasksState",
+  get: ({ get }) => {
+    const taskDays = get(tasksState);
+    const tasks = Object.values(taskDays).reduce((acc, day) => {
+      return acc.concat(day.tasks);
+    }, [] as Task[]);
+    return tasks;
+  },
+});
+
 export const loadingState = atom<boolean>({
   key: "loadingState",
   default: false,

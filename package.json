@@ -15,15 +15,18 @@
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "babel-plugin-macros": "^3.1.0",
+    "date-fns": "^2.29.3",
     "fast-average-color": "^9.3.0",
     "framer-motion": "^10.8.5",
     "react": "^18.2.0",
+    "react-big-calendar": "^1.6.9",
     "react-dom": "^18.2.0",
     "react-loader-spinner": "^5.3.4"
   },
   "devDependencies": {
     "@hello-pangea/dnd": "^16.2.0",
     "@types/react": "^18.0.27",
+    "@types/react-big-calendar": "^1.6.3",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react": "^3.1.0",
     "autoprefixer": "^10.4.14",
