@@ -3,8 +3,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthLayout from "./views/AuthLayout";
 import Login from "./views/Login";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./index.css";
 import { RecoilRoot } from "recoil";
 import Dashboard from "./views/Dashboard";

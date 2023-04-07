@@ -1,17 +1,18 @@
 import { FC, useEffect, useState } from "react";
-import { Calendar as ReactCalendar, dateFnsLocalizer, Event } from "react-big-calendar";
-import withDragAndDrop, { withDragAndDropProps } from "react-big-calendar/lib/addons/dragAndDrop";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
-import addHours from "date-fns/addHours";
-import startOfHour from "date-fns/startOfHour";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authUserState, combinedTasksState, tasksState } from "../store";
 import { getTasks } from "../services/tasks";
 import { ColorRing } from "react-loader-spinner";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { ClassNamesGenerator, DayCellContentArg } from "@fullcalendar/core";
+
+type Event = {
+  title: string;
+  date: string;
+  id: string;
+};
 
 const Calendar: FC = () => {
   const auth = useRecoilValue(authUserState);
@@ -19,6 +20,7 @@ const Calendar: FC = () => {
   const tasks = useRecoilValue(combinedTasksState);
   const [events, setEvents] = useState<Event[]>([]);
   const [fetching, setFetching] = useState(true);
+  const [date, setDate] = useState(new Date());
 
   useEffect(() => {
     if (auth?.authUID) {
@@ -35,59 +37,40 @@ const Calendar: FC = () => {
     setEvents(
       tasks.map((task) => ({
         title: task.content,
-        start: task.taskDate.toDate(),
-        end: task.taskDate.toDate(),
+        date: task.taskDate.format("YYYY-MM-DD"),
+        id: task.taskID,
       }))
     );
   }, [tasks]);
 
-  const onEventResize: withDragAndDropProps["onEventResize"] = (data) => {
-    const { start, end } = data;
-
-    setEvents((currentEvents) => {
-      const firstEvent = {
-        start: new Date(start),
-        end: new Date(end),
-      };
-      return [...currentEvents, firstEvent];
-    });
-  };
-
-  const onEventDrop: withDragAndDropProps["onEventDrop"] = (data) => {
-    console.log(data);
+  const generateDayCellClassNames: ClassNamesGenerator<DayCellContentArg> = (args: {
+    date: Date;
+    dayNumberText: string;
+    isPast: boolean;
+    isFuture: boolean;
+    isToday: boolean;
+    isOther: boolean;
+  }) => {
+    if (args.isOther) {
+      return "bg-gray-200 dark:bg-zinc-700";
+    }
+    return "";
   };
 
   return !fetching ? (
-    <DnDCalendar
-      defaultView="month"
-      events={events}
-      className="flex-1 max-w-[1250px] border-none rounded-lg"
-      localizer={localizer}
-      onEventDrop={onEventDrop}
-      onEventResize={onEventResize}
-      views={{ month: true }}
-      resizable
-    />
+    <div className="w-5/6">
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        height="100%"
+        events={events}
+        eventClick={(e) => console.log(e.event, e.event.id, e.event.title)}
+        dayCellClassNames={generateDayCellClassNames}
+      />
+    </div>
   ) : (
     <ColorRing />
   );
 };
-
-const locales = {
-  "en-US": enUS,
-};
-const endOfHour = (date: Date): Date => addHours(startOfHour(date), 1);
-const now = new Date();
-const start = endOfHour(now);
-const end = addHours(start, 2);
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
-
-const DnDCalendar = withDragAndDrop(ReactCalendar);
 
 export default Calendar;
