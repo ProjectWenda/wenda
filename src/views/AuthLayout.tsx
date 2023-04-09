@@ -41,16 +41,14 @@ const AuthLayout = () => {
       <div className="dark:bg-zinc-900 bg-white flex flex-col flex-1">
         <div className="flex dark:bg-light-gray bg-zinc-300 max-w-none h-20 items-center justify-end">
           <div className="w-[175px]"></div>
-        {loggedIn && (
-          <div className="flex w-full justify-center mt-2">
-            <span className="text-6xl font-['Poppins'] antialiased">
-              W
-            </span>
-            <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased">
-              enda
-            </span>
-          </div>
-        )}
+          {loggedIn && (
+            <div className="flex w-full justify-center mt-2">
+              <span className="text-6xl font-['Poppins'] antialiased">W</span>
+              <span className="text-6xl font-['Poppins'] bg-clip-text bg-gradient-to-r from-disc-blue to-purple-700 text-transparent antialiased">
+                enda
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-2 mr-4">
             {showUserInfo && <UserTag user={discordUserRes} />}
             {showUserInfo && <UserMenu user={discordUserRes} />}

@@ -14,13 +14,22 @@ const BannerImage: React.FC<ImageProps> = ({
   children,
 }) => {
   const imageURL = getUserBanner(discordUser)
+  const bannerColor = discordUser.bannerColor
+
+  const bannerStyle = `absolute left-[50%] -translate-x-1/2 w-[90%] h-[400px] opacity-30 object-cover`
+
 
   return (
     <div className="w-full h-[400px] relative">
-      <img
-        className="absolute left-[50%] -translate-x-1/2 w-[90%] h-[400px] object-cover opacity-50"
-        src={imageURL}
-      />
+      {!discordUser.banner ? 
+        <div className={bannerStyle} style={{backgroundColor: bannerColor}}></div>
+        :
+        <img
+          className={bannerStyle}
+          src={imageURL}
+        />
+      
+      }
       {children}
     </div>
   );
@@ -40,10 +49,15 @@ const ProfileImage: React.FC<ImageProps> = ({ discordUser }) => {
 const ProfileInfo: React.FC<ImageProps> = ({ discordUser }) => {
   return (
     <div className="absolute left-[10%] top-[50%] -translate-y-1/2">
-      <div className="flex items-center">
+      <div className="flex items-center gap-[10px]">
       <ProfileImage discordUser={discordUser} />
-      <div className="pl-[20px] text-4xl">
-        {discordUser.username}
+      <div className="flex flex-col gap-[3px] p-4 bg-gray-800 bg-opacity-20 rounded-xl">
+        <div className="flex items-end text-5xl">
+          <span className="font-semibold">@{discordUser.username}</span><span className="text-gray-400 text-2xl">#{discordUser.discriminator}</span>
+        </div>
+        <div className="text-gray-300 ml-2">
+          Joined on April 9th, 2023
+        </div>
       </div>
       </div>
     </div>
