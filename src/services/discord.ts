@@ -4,7 +4,7 @@ import { DiscordUser, userFromServer } from "../schema/User";
 
 const inDev = import.meta.env.DEV;
 const baseUrl = inDev ? import.meta.env.VITE_LOCAL_BACKEND_URL : import.meta.env.VITE_BACKEND_URL;
-const avatarBaseUrl = 'https://cdn.discordapp.com/avatars';
+const DISCORD_BASE_URL = 'https://cdn.discordapp.com'
 
 
 export const getUser = async (uid: string) : Promise<DiscordUser> => {
@@ -15,7 +15,13 @@ export const getUser = async (uid: string) : Promise<DiscordUser> => {
 export const getUserImage = (user: DiscordUser) => {
   const avatarId = user.avatar;
   const userId = user.id;
-  return `${avatarBaseUrl}/${userId}/${avatarId}.png`
+  return `${DISCORD_BASE_URL}/avatars/${userId}/${avatarId}.png?size=4096`
+}
+
+export const getUserBanner = (user: DiscordUser) => {
+  const bannerId = user.banner;
+  const userId = user.id;
+  return `${DISCORD_BASE_URL}/banners/${userId}/${bannerId}.png?size=4096`
 }
 
 export const getUserImageColor = async (user: DiscordUser) => {
