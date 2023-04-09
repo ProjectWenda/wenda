@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AuthLayout from "./views/AuthLayout";
 import Login from "./views/Login";
+import Profile from "./views/Profile";
 import "./index.css";
 import { RecoilRoot } from "recoil";
 import Dashboard from "./views/Dashboard";
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
     ],
   },

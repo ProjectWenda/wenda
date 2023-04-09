@@ -5,7 +5,10 @@ import { getUser, getUserImageColor } from "../services/discord";
 import LogoutButton from "./LogoutButton";
 import ThemeToggle from "./ThemeToggle";
 import UserImage from "./UserImage";
+import MenuItem from "./MenuItem";
 import { DiscordUser } from "../schema/User";
+import Button from "./Button";
+import { useNavigate } from "react-router-dom";
 
 interface UserMenuProps {
   user: DiscordUser
@@ -17,6 +20,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const [imageColor, setImageColor] = React.useState<string>();
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +33,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
 
   const menuEntries = [
     <ThemeToggle showText />,
+    <MenuItem onClick={() => navigate("/profile")}>Profile</MenuItem>,
     <LogoutButton userName={userName} />,
   ];
 
