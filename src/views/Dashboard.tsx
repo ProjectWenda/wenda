@@ -20,8 +20,9 @@ import WeekSwitcher from "../components/agenda-page/WeekSwitcher";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { getTasksByDate } from "../domain/TaskUtils";
 import { getWeekdayFromDay } from "../domain/WeekdayUtils";
-import AddTaskModal from "../components/AddTaskModal";
+import AddTaskDialog from "../components/AddTaskDialog";
 import CreateItemButton from "../components/agenda-page/CreateItemButton";
+import { Modal } from "antd";
 
 let didInit = false;
 
@@ -195,12 +196,21 @@ const Dashboard = () => {
         <>
           <div className="flex gap-3 items-center mb-3 justify-between ml-1">
             <CreateItemButton createItemAction={() => setShowAddModal(true)} />
-            {showAddModal && (
+            {/* {showAddModal && (
               <AddTaskModal
                 onClose={() => setShowAddModal(false)}
                 onSubmit={() => setShowAddModal(false)}
               />
-            )}
+            )} */}
+            <Modal
+              title="Add a task"
+              centered
+              closable={false}
+              open={showAddModal}
+              onCancel={() => setShowAddModal(false)}
+            >
+              <AddTaskDialog />
+            </Modal>
             <WeekSwitcher />
             <div className="w-[8.5rem]"></div>
           </div>

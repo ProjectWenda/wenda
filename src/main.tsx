@@ -6,6 +6,7 @@ import Login from "./views/Login";
 import "./index.css";
 import { RecoilRoot } from "recoil";
 import Dashboard from "./views/Dashboard";
+import { StyleProvider } from "@ant-design/cssinjs";
 
 const router = createBrowserRouter([
   {
@@ -30,8 +31,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RecoilRoot>
-      <RouterProvider router={router} />
-    </RecoilRoot>
+    <StyleProvider hashPriority="high">
+      <RecoilRoot>
+        <RouterProvider router={router} />
+      </RecoilRoot>
+    </StyleProvider>
   </React.StrictMode>
 );
