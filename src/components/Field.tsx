@@ -1,19 +1,27 @@
-import * as React from 'react';
+import { Input, Select, Typography } from "antd";
+import * as React from "react";
+import DatePicker from "./DatePicker";
+import { Moment } from "moment";
+import { Option } from "antd/es/mentions";
 
-type FieldProps = {
+type TextFieldProps = {
   label: string;
   value: string;
-  type: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   stacked?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
-}
+};
 
-type SelectFieldProps = Omit<FieldProps, 'type' | 'onChange'> & {
+type SelectFieldProps = Omit<TextFieldProps, "onChange"> & {
   options: string[];
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-}
+  onChange: (value: string) => void;
+};
+
+type DateFieldProps = Omit<TextFieldProps, "onChange" | "value"> & {
+  value: Moment;
+  onChange: (date: Moment | null, dateString: string) => void;
+};
 
 export const SelectField: React.FC<SelectFieldProps> = ({
   label,
@@ -22,48 +30,68 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   stacked,
   autoFocus,
   placeholder,
-  options
+  options,
 }) => {
   return (
-    <div className={`flex ${stacked ? 'flex-col gap-1' : 'flex-row items-center gap-3'}`}>
-      <label className="font-semibold">{label}</label>
-      <select
-        value={value}
+    <div className={`flex ${stacked ? "flex-col gap-1" : "flex-row items-center gap-3"}`}>
+      <Typography.Text strong>{label}</Typography.Text>
+      <Select
         onChange={onChange}
-        className="rounded p-1 dark:bg-zinc-700 bg-gray-200 flex-1"
+        className="flex-1"
         autoFocus={autoFocus}
         placeholder={placeholder}
+        value={value}
       >
         {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
+          <Option key={option} value={option}>
+            {option}
+          </Option>
         ))}
-      </select>
+      </Select>
     </div>
-  )
-}
+  );
+};
 
-const Field: React.FC<FieldProps> = ({
+export const TextField: React.FC<TextFieldProps> = ({
   label,
   value,
-  type,
   onChange,
   stacked,
   autoFocus,
-  placeholder
+  placeholder,
 }) => {
   return (
-    <div className={`flex ${stacked ? 'flex-col gap-1' : 'flex-row items-center gap-3'}`}>
-      <label className="font-semibold">{label}</label>
-      <input
-        type={type}
+    <div className={`flex ${stacked ? "flex-col gap-1" : "flex-row items-center gap-3"}`}>
+      <Typography.Text strong>{label}</Typography.Text>
+      <Input
         value={value}
         onChange={onChange}
-        className="rounded p-1 dark:bg-zinc-700 bg-gray-200 flex-1"
+        className="flex-1"
         autoFocus={autoFocus}
         placeholder={placeholder}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Field;
+export const DateField: React.FC<DateFieldProps> = ({
+  label,
+  value,
+  onChange,
+  stacked,
+  autoFocus,
+  placeholder,
+}) => {
+  return (
+    <div className={`flex ${stacked ? "flex-col gap-1" : "flex-row items-center gap-3"}`}>
+      <Typography.Text strong>{label}</Typography.Text>
+      <DatePicker
+        value={value}
+        onChange={onChange}
+        className="flex-1"
+        autoFocus={autoFocus}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+};

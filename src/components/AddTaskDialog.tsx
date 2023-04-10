@@ -1,7 +1,6 @@
 import * as React from "react";
-import Modal from "./Modal";
 import moment, { Moment } from "moment";
-import Field, { SelectField } from "./Field";
+import { TextField, DateField, SelectField } from "./Field";
 import {
   AddTaskArgs,
   DayTasks,
@@ -23,7 +22,7 @@ type AddTaskModalProps = {
 
 const CONTENT_PLACEHOLDER = "New task content...";
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ }) => {
+const AddTaskModal: React.FC<AddTaskModalProps> = ({}) => {
   const [tasks, setTasks] = useRecoilState(tasksState);
   const userState = useRecoilValue(authUserState);
   const [newTaskContent, setNewTaskContent] = React.useState<string>("");
@@ -61,7 +60,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ }) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <Field
+      {/* <Field
         type="text"
         label="Task Content:"
         value={newTaskContent}
@@ -74,11 +73,23 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ }) => {
         label="Task Date:"
         value={newTaskDate.format("YYYY-MM-DD")}
         onChange={(e) => setNewTaskDate(moment(e.target.value))}
+      /> */}
+      <TextField
+        label="Task Content:"
+        value={newTaskContent}
+        onChange={(e) => setNewTaskContent(e.target.value)}
+        placeholder={CONTENT_PLACEHOLDER}
+        autoFocus
+      />
+      <DateField
+        label="Task Date:"
+        value={newTaskDate}
+        onChange={(date) => setNewTaskDate(date!)}
       />
       <SelectField
         label="Task Status:"
         value={getTaskStatusString(newTaskStatus)}
-        onChange={(e) => setNewTaskStatus(getTaskStatusFromString(e.target.value))}
+        onChange={(value) => setNewTaskStatus(getTaskStatusFromString(value))}
         options={taskStatusStrings}
       />
     </div>
