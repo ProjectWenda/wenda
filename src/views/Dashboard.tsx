@@ -24,6 +24,7 @@ import { getWeekdayFromDay } from "../domain/WeekdayUtils";
 import AddTaskDialog from "../components/AddTaskDialog";
 import CreateItemButton from "../components/agenda-page/CreateItemButton";
 import useModal from "antd/es/modal/useModal";
+import { Modal } from "antd";
 
 let didInit = false;
 
@@ -193,6 +194,10 @@ const Dashboard = () => {
 
   useKeyPress(["i"], () => setShowAddModal(true), null, true);
 
+  const closeDialog = () => {
+    setShowAddModal(false);
+  }
+
   React.useEffect(() => {
     if (showAddModal) {
       const newTaskModal = modal.confirm({});
@@ -204,12 +209,14 @@ const Dashboard = () => {
         okText: "Submit",
         cancelButtonProps: { danger: true },
         content: (
-          <AddTaskDialog update={newTaskModal.update} closeDialog={() => setShowAddModal(false)} />
+          <AddTaskDialog update={newTaskModal.update} closeDialog={closeDialog} />
         ),
         icon: null,
-        onOk: () => setShowAddModal(false),
-        onCancel: () => setShowAddModal(false),
+        onOk: closeDialog,
+        onCancel: closeDialog,
       });
+    } else {
+      Modal.destroyAll();
     }
   }, [showAddModal]);
 

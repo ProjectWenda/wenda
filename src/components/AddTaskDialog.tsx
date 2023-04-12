@@ -16,6 +16,7 @@ import { addTask } from "../services/tasks";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, tasksState } from "../store";
 import { ConfigUpdate } from "antd/es/modal/confirm";
+import { useKeyPress } from "../hooks/useKeyPress";
 
 type AddTaskModalProps = {
   update: (configUpdate: ConfigUpdate) => void;
@@ -24,7 +25,7 @@ type AddTaskModalProps = {
 
 const CONTENT_PLACEHOLDER = "New task content...";
 
-const AddTaskDialog: React.FC<AddTaskModalProps> = ({update, closeDialog}) => {
+const AddTaskDialog: React.FC<AddTaskModalProps> = ({ update, closeDialog }) => {
   const [tasks, setTasks] = useRecoilState(tasksState);
   const userState = useRecoilValue(authUserState);
   const [newTaskContent, setNewTaskContent] = React.useState<string>("");
@@ -56,22 +57,24 @@ const AddTaskDialog: React.FC<AddTaskModalProps> = ({update, closeDialog}) => {
       };
       setTasks(newDayTasks);
     }
-  }, [newTaskContent, newTaskDate, tasks, userState, newTaskStatus]);
+  }, [newTaskContent, newTaskDate, tasks, userState, newTaskStatus, closeDialog]);
 
   const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
+
+  useKeyPress(["Enter"], validSubmit ? submitTask : () => null);
 
   React.useEffect(() => {
     update({
       okButtonProps: {
         disabled: !validSubmit,
       },
-    })
+    });
   }, [update, validSubmit]);
 
   React.useEffect(() => {
     update({
       onOk: submitTask,
-    })
+    });
   }, [submitTask]);
 
   return (
