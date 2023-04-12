@@ -9,7 +9,7 @@ import IconButton from "../IconButton";
 import { motion } from "framer-motion";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import { Draggable } from "@hello-pangea/dnd";
-import { Typography } from "antd";
+import { Input, Typography } from "antd";
 
 interface TaskItemProps {
   task: Task;
@@ -32,9 +32,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
     const newDayTasks: DayTasks = {
       ...dayTasks,
       [taskDate.format("YYYY-MM-DD")]: {
-        tasks: getTasksByDate(dayTasks, taskDate).filter(
-          (t) => t.taskID !== task.taskID
-        ),
+        tasks: getTasksByDate(dayTasks, taskDate).filter((t) => t.taskID !== task.taskID),
       },
     };
     setDayTasks(newDayTasks);
@@ -65,9 +63,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
 
   const checkTask = React.useCallback(async () => {
     const newStatus =
-      task.taskStatus === TaskStatus.Completed
-        ? TaskStatus.ToDo
-        : TaskStatus.Completed;
+      task.taskStatus === TaskStatus.Completed ? TaskStatus.ToDo : TaskStatus.Completed;
     const updatedProps: Partial<Task> = { taskStatus: newStatus };
     const updatedTask = { ...task, ...updatedProps };
     const newDayTasks: DayTasks = {
@@ -83,10 +79,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
   }, [task, dayTasks, getTasksByDate, taskDate, uid]);
 
   const handleClick = React.useCallback(() => {
-    if (
-      task.taskStatus === TaskStatus.Completed ||
-      task.taskStatus === TaskStatus.ToDo
-    ) {
+    if (task.taskStatus === TaskStatus.Completed || task.taskStatus === TaskStatus.ToDo) {
       checkTask();
     }
   }, [task.taskStatus, checkTask]);
@@ -123,13 +116,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
         >
           {editing ? (
             <div className="flex items-center gap-1">
-              <input
+              <Input
                 onChange={(e) => setNewContent(e.target.value)}
                 value={newContent}
                 className="pl-1 rounded dark:bg-zinc-700 bg-white w-11/12"
                 autoFocus
               />
-              <IconButton icon={faCheckCircle} onClick={handleEdit} size="sm" />
+              <IconButton
+                icon={faCheckCircle}
+                onClick={handleEdit}
+                size="sm"
+                className="dark:text-white text-black"
+              />
             </div>
           ) : (
             <div

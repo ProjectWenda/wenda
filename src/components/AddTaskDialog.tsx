@@ -1,5 +1,6 @@
 import * as React from "react";
 import moment, { Moment } from "moment";
+import tz from "moment-timezone";
 import { TextField, DateField, SelectField } from "./Field";
 import {
   AddTaskArgs,
@@ -14,15 +15,16 @@ import { getTasksByDate } from "../domain/TaskUtils";
 import { addTask } from "../services/tasks";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, tasksState } from "../store";
+import { ConfigUpdate } from "antd/es/modal/confirm";
 
 type AddTaskModalProps = {
-  // onClose: () => void;
-  // onSubmit: () => void;
+  update: (configUpdate: ConfigUpdate) => void;
+  closeDialog: () => void;
 };
 
 const CONTENT_PLACEHOLDER = "New task content...";
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({}) => {
+const AddTaskDialog: React.FC<AddTaskModalProps> = ({update, closeDialog}) => {
   const [tasks, setTasks] = useRecoilState(tasksState);
   const userState = useRecoilValue(authUserState);
   const [newTaskContent, setNewTaskContent] = React.useState<string>("");
@@ -32,48 +34,48 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({}) => {
     getTaskStatusString(status)
   );
 
-  // const submitTask = React.useCallback(async () => {
-    // const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
-  //   const newTask: Partial<Task> = {
-  //     content: newTaskContent,
-  //     taskStatus: newTaskStatus,
-  //     taskDate: normalizedDate,
-  //   };
-  //   const addArgs: AddTaskArgs = {
-  //     uid: userState!.authUID,
-  //     taskData: newTask,
-  //   };
-  //   const newTaskRes = await addTask(addArgs);
-  //   if (newTaskRes) {
-  //     const newDayTasks: DayTasks = {
-  //       ...tasks,
-  //       [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
-  //         tasks: [...getTasksByDate(tasks, newTaskDate), newTaskRes],
-  //       },
-  //     };
-  //     setTasks(newDayTasks);
-  //   }
-  //   onSubmit();
-  // }, [newTaskContent, newTaskDate, tasks, userState, onSubmit, newTaskStatus]);
+  const submitTask = React.useCallback(async () => {
+    closeDialog();
+    const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
+    const newTask: Partial<Task> = {
+      content: newTaskContent,
+      taskStatus: newTaskStatus,
+      taskDate: normalizedDate,
+    };
+    const addArgs: AddTaskArgs = {
+      uid: userState!.authUID,
+      taskData: newTask,
+    };
+    const newTaskRes = await addTask(addArgs);
+    if (newTaskRes) {
+      const newDayTasks: DayTasks = {
+        ...tasks,
+        [newTaskRes.taskDate.format("YYYY-MM-DD")]: {
+          tasks: [...getTasksByDate(tasks, newTaskDate), newTaskRes],
+        },
+      };
+      setTasks(newDayTasks);
+    }
+  }, [newTaskContent, newTaskDate, tasks, userState, newTaskStatus]);
 
-  // const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
+  const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
+
+  React.useEffect(() => {
+    update({
+      okButtonProps: {
+        disabled: !validSubmit,
+      },
+    })
+  }, [update, validSubmit]);
+
+  React.useEffect(() => {
+    update({
+      onOk: submitTask,
+    })
+  }, [submitTask]);
 
   return (
     <div className="flex flex-col gap-2">
-      {/* <Field
-        type="text"
-        label="Task Content:"
-        value={newTaskContent}
-        onChange={(e) => setNewTaskContent(e.target.value)}
-        placeholder={CONTENT_PLACEHOLDER}
-        autoFocus
-      />
-      <Field
-        type="date"
-        label="Task Date:"
-        value={newTaskDate.format("YYYY-MM-DD")}
-        onChange={(e) => setNewTaskDate(moment(e.target.value))}
-      /> */}
       <TextField
         label="Task Content:"
         value={newTaskContent}
@@ -96,4 +98,4 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({}) => {
   );
 };
 
-export default AddTaskModal;
+export default AddTaskDialog;

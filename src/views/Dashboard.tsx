@@ -23,7 +23,7 @@ import { getTasksByDate } from "../domain/TaskUtils";
 import { getWeekdayFromDay } from "../domain/WeekdayUtils";
 import AddTaskDialog from "../components/AddTaskDialog";
 import CreateItemButton from "../components/agenda-page/CreateItemButton";
-import { Modal } from "antd";
+import useModal from "antd/es/modal/useModal";
 
 let didInit = false;
 
@@ -37,6 +37,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dragging, setDragging] = useRecoilState(draggingState);
   const currentWeek = useRecoilValue(weekState);
+  const [modal, contextHolder] = useModal();
 
   const cookieValue = document.cookie.replace(
     /(?:(?:^|.*;\s*)authuid\s*\=\s*([^;]*).*$)|^.*$/,
@@ -151,8 +152,8 @@ const Dashboard = () => {
       const reorderedItem = sourceItems.splice(result.source.index, 1)[0];
       const newDate = moment()
         .week(currentWeek)
-        .day(getWeekdayFromDay(result.destination.droppableId))
-      const normalizedDate = tz(newDate, "America/New_York").set({hour: 8, minute: 0})
+        .day(getWeekdayFromDay(result.destination.droppableId));
+      const normalizedDate = tz(newDate, "America/New_York").set({ hour: 8, minute: 0 });
       const updatedItem = { ...reorderedItem, taskDate: normalizedDate };
       destinationItems.splice(result.destination.index, 0, updatedItem);
 
@@ -192,27 +193,32 @@ const Dashboard = () => {
 
   useKeyPress(["i"], () => setShowAddModal(true), null, true);
 
+  React.useEffect(() => {
+    if (showAddModal) {
+      const newTaskModal = modal.confirm({});
+      newTaskModal.update({
+        title: "Add a task",
+        centered: true,
+        closable: false,
+        okType: "default",
+        okText: "Submit",
+        cancelButtonProps: { danger: true },
+        content: (
+          <AddTaskDialog update={newTaskModal.update} closeDialog={() => setShowAddModal(false)} />
+        ),
+        icon: null,
+        onOk: () => setShowAddModal(false),
+        onCancel: () => setShowAddModal(false),
+      });
+    }
+  }, [showAddModal]);
+
   return (
     <div className="bg-zinc-100 dark:bg-zinc-800 rounded py-2 px-1 flex flex-col w-dashboard min-w-[1000px]">
       {!loading ? (
         <>
           <div className="flex gap-3 items-center mb-3 justify-between ml-1">
             <CreateItemButton createItemAction={() => setShowAddModal(true)} />
-            {/* {showAddModal && (
-              <AddTaskModal
-                onClose={() => setShowAddModal(false)}
-                onSubmit={() => setShowAddModal(false)}
-              />
-            )} */}
-            <Modal
-              title="Add a task"
-              centered
-              closable={false}
-              open={showAddModal}
-              onCancel={() => setShowAddModal(false)}
-            >
-              <AddTaskDialog />
-            </Modal>
             <WeekSwitcher />
             <div className="w-[8.5rem]"></div>
           </div>
@@ -225,6 +231,7 @@ const Dashboard = () => {
           <ColorRing />
         </div>
       )}
+      {contextHolder}
     </div>
   );
 };
