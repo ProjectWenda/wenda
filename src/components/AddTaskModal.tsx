@@ -1,6 +1,7 @@
 import * as React from "react";
 import Modal from "./Modal";
 import moment, { Moment } from "moment";
+import tz from "moment-timezone";
 import Field, { SelectField } from "./Field";
 import {
   AddTaskArgs,
@@ -34,11 +35,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
   );
 
   const submitTask = React.useCallback(async () => {
-    const timedTaskDate = newTaskDate.set({ hour: 8, minute: 0 });
+    const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
     const newTask: Partial<Task> = {
       content: newTaskContent,
       taskStatus: newTaskStatus,
-      taskDate: timedTaskDate,
+      taskDate: normalizedDate,
     };
     const addArgs: AddTaskArgs = {
       uid: userState!.authUID,
