@@ -31,10 +31,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <StyleProvider hashPriority="high">
+    {/* <StyleProvider hashPriority="high"> */}
       <RecoilRoot>
         <RouterProvider router={router} />
       </RecoilRoot>
-    </StyleProvider>
+    {/* </StyleProvider> */}
   </React.StrictMode>
 );

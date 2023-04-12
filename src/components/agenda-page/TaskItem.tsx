@@ -9,6 +9,7 @@ import IconButton from "../IconButton";
 import { motion } from "framer-motion";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import { Draggable } from "@hello-pangea/dnd";
+import { Typography } from "antd";
 
 interface TaskItemProps {
   task: Task;
@@ -135,9 +136,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, uid, index }) => {
               className="flex justify-between items-center"
               {...draggableProvided.dragHandleProps}
             >
-              <p className={contentTextClassName} onClick={handleClick}>
+              <Typography.Text className={contentTextClassName} onClick={handleClick}>
                 {task.content}
-              </p>
+              </Typography.Text>
               <motion.div
                 animate={hoveringTask ? "shown" : "hidden"}
                 variants={deleteButtonVariants}
