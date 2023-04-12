@@ -3,6 +3,7 @@ import {
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import tz from "moment-timezone";
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useKeyPress } from "../../hooks/useKeyPress";
@@ -34,11 +35,12 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    const newTaskDate = moment().week(week).day(dayOfWeek).set({hour: 8, minute: 0});
+    const newTaskDate = moment().week(week).day(dayOfWeek);
+    const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
     const newTask: Partial<Task> = {
       content: newContent,
       taskStatus: TaskStatus.ToDo,
-      taskDate: newTaskDate,
+      taskDate: normalizedDate,
     };
     const addArgs: AddTaskArgs = {
       uid,

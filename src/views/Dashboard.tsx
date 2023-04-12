@@ -1,4 +1,5 @@
 import moment from "moment";
+import tz from "moment-timezone";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -150,8 +151,9 @@ const Dashboard = () => {
       const reorderedItem = sourceItems.splice(result.source.index, 1)[0];
       const newDate = moment()
         .week(currentWeek)
-        .day(getWeekdayFromDay(result.destination.droppableId));
-      const updatedItem = { ...reorderedItem, taskDate: newDate };
+        .day(getWeekdayFromDay(result.destination.droppableId))
+      const normalizedDate = tz(newDate, "America/New_York").set({hour: 8, minute: 0})
+      const updatedItem = { ...reorderedItem, taskDate: normalizedDate };
       destinationItems.splice(result.destination.index, 0, updatedItem);
 
       const newDayTasks: DayTasks = {
