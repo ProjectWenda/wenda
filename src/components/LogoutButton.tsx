@@ -2,6 +2,7 @@ import React from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authUserState, loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
+import { Typography } from "antd";
 
 interface LogoutButtonProps {
   userName?: string;
@@ -39,7 +40,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ userName }) => {
       >
         Logout
       </button>
-      <span className="text-sm">@{userName}</span>
+      <Typography.Text className="text-sm break-keep">@{userName}</Typography.Text>
     </div>
   );
 };

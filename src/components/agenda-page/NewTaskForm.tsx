@@ -13,6 +13,7 @@ import { addTask } from "../../services/tasks";
 import { tasksState, weekState } from "../../store";
 import IconButton from "../IconButton";
 import { getTasksByDate } from "../../domain/TaskUtils";
+import { Input } from "antd";
 
 interface NewTaskFormProps {
   setAddingNewTask: React.Dispatch<React.SetStateAction<boolean>>;
@@ -63,7 +64,7 @@ const NewTaskForm: React.FC<NewTaskFormProps> = ({
   return (
     <div className="flex flex-col mx-1">
       <div className="rounded-t bg-slate-50 dark:bg-zinc-800 p-2 min-h-20 shadow">
-        <input
+        <Input
           value={newContent}
           className="pl-1 rounded dark:bg-zinc-700 bg-white w-full"
           onChange={(e) => setNewContent(e.target.value)}
