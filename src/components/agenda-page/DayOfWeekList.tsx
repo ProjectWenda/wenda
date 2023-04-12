@@ -46,7 +46,7 @@ const DayOfWeekList: React.FC<DayOfWeekListProps> = ({ dayOfWeek, uid }) => {
           !isToday && "pt-2"
         }`}
       >
-        <div className="text-lg flex gap-0">
+        <div className="flex">
           <Typography.Text className="ml-1 font-bold">{getWeekdayName(dayOfWeek)}</Typography.Text>
           <Typography.Text>{dayOfMonthString}</Typography.Text>
         </div>

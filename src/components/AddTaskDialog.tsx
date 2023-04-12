@@ -33,11 +33,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({}) => {
   );
 
   // const submitTask = React.useCallback(async () => {
-  //   const timedTaskDate = newTaskDate.set({ hour: 8, minute: 0 });
+    // const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
   //   const newTask: Partial<Task> = {
   //     content: newTaskContent,
   //     taskStatus: newTaskStatus,
-  //     taskDate: timedTaskDate,
+  //     taskDate: normalizedDate,
   //   };
   //   const addArgs: AddTaskArgs = {
   //     uid: userState!.authUID,
