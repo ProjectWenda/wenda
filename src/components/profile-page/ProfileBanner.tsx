@@ -14,7 +14,9 @@ const BannerImage: React.FC<ImageProps> = ({
   children,
 }) => {
   const imageURL = getUserBanner(discordUser)
-  const bannerColor = discordUser.bannerColor
+  const bannerColor = discordUser.bannerColor ?? "#ffffff"
+  console.log(bannerColor)
+  console.log(discordUser)
 
   const bannerStyle = `absolute left-[50%] -translate-x-1/2 w-[90%] h-[400px] opacity-30 object-cover`
 
