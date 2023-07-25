@@ -2,7 +2,7 @@ import React from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { authUserState, loggedInState } from "../store";
 import { useNavigate } from "react-router-dom";
-import { Typography } from "antd";
+import { Typography, Button } from "antd";
 
 interface LogoutButtonProps {
   userName?: string;
@@ -26,20 +26,20 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ userName }) => {
   };
 
   return !userName ? (
-    <button
+    <Button
       className="text-white bg-disc-blue px-2 py-1 text-sm"
       onClick={handleClick}
     >
-      Logout
-    </button>
+      <Typography.Text>Logout</Typography.Text>
+    </Button>
   ) : (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         className="text-white bg-disc-blue px-2 py-1 text-sm"
         onClick={handleClick}
       >
-        Logout
-      </button>
+        <Typography.Text>Logout</Typography.Text>
+      </Button>
       <Typography.Text className="text-sm break-keep">@{userName}</Typography.Text>
     </div>
   );
