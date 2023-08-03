@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { useRecoilState } from "recoil";
 import { themeState } from "../store";
+import { Typography } from "antd";
 
 interface ThemeToggleProps {
   showText?: boolean;
@@ -18,11 +19,11 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ showText }) => {
       >
         <FontAwesomeIcon
           icon={isDarkMode ? faSun : faMoon}
-          className="text-sm"
+          className="text-sm dark:text-white text-black"
         />
       </button>
       {showText &&
-      <p className="text-sm">Theme</p>}
+      <Typography.Text className="text-sm">Theme</Typography.Text>}
     </div>
   );
 };

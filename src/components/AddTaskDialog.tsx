@@ -1,8 +1,7 @@
 import * as React from "react";
-import Modal from "./Modal";
 import moment, { Moment } from "moment";
 import tz from "moment-timezone";
-import Field, { SelectField } from "./Field";
+import { TextField, DateField, SelectField } from "./Field";
 import {
   AddTaskArgs,
   DayTasks,
@@ -16,15 +15,17 @@ import { getTasksByDate } from "../domain/TaskUtils";
 import { addTask } from "../services/tasks";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { authUserState, tasksState } from "../store";
+import { ConfigUpdate } from "antd/es/modal/confirm";
+import { useKeyPress } from "../hooks/useKeyPress";
 
 type AddTaskModalProps = {
-  onClose: () => void;
-  onSubmit: () => void;
+  update: (configUpdate: ConfigUpdate) => void;
+  closeDialog: () => void;
 };
 
 const CONTENT_PLACEHOLDER = "New task content...";
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
+const AddTaskDialog: React.FC<AddTaskModalProps> = ({ update, closeDialog }) => {
   const [tasks, setTasks] = useRecoilState(tasksState);
   const userState = useRecoilValue(authUserState);
   const [newTaskContent, setNewTaskContent] = React.useState<string>("");
@@ -35,6 +36,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
   );
 
   const submitTask = React.useCallback(async () => {
+    closeDialog();
     const normalizedDate = tz(newTaskDate, "America/New_York").set({ hour: 8, minute: 0 });
     const newTask: Partial<Task> = {
       content: newTaskContent,
@@ -55,43 +57,48 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onClose, onSubmit }) => {
       };
       setTasks(newDayTasks);
     }
-    onSubmit();
-  }, [newTaskContent, newTaskDate, tasks, userState, onSubmit, newTaskStatus]);
+  }, [newTaskContent, newTaskDate, tasks, userState, newTaskStatus, closeDialog]);
 
   const validSubmit = React.useMemo(() => newTaskContent !== "", [newTaskContent]);
 
+  useKeyPress(["Enter"], validSubmit ? submitTask : () => null);
+
+  React.useEffect(() => {
+    update({
+      okButtonProps: {
+        disabled: !validSubmit,
+      },
+    });
+  }, [update, validSubmit]);
+
+  React.useEffect(() => {
+    update({
+      onOk: submitTask,
+    });
+  }, [submitTask]);
+
   return (
-    <Modal
-      title="Add a task"
-      onClose={onClose}
-      onClickPrimary={submitTask}
-      height="h-[8.5rem]"
-      primaryClickDisabled={!validSubmit}
-    >
-      <div className="flex flex-col gap-2">
-        <Field
-          type="text"
-          label="Task Content:"
-          value={newTaskContent}
-          onChange={(e) => setNewTaskContent(e.target.value)}
-          placeholder={CONTENT_PLACEHOLDER}
-          autoFocus
-        />
-        <Field
-          type="date"
-          label="Task Date:"
-          value={newTaskDate.format("YYYY-MM-DD")}
-          onChange={(e) => setNewTaskDate(moment(e.target.value))}
-        />
-        <SelectField
-          label="Task Status:"
-          value={getTaskStatusString(newTaskStatus)}
-          onChange={(e) => setNewTaskStatus(getTaskStatusFromString(e.target.value))}
-          options={taskStatusStrings}
-        />
-      </div>
-    </Modal>
+    <div className="flex flex-col gap-2">
+      <TextField
+        label="Task Content:"
+        value={newTaskContent}
+        onChange={(e) => setNewTaskContent(e.target.value)}
+        placeholder={CONTENT_PLACEHOLDER}
+        autoFocus
+      />
+      <DateField
+        label="Task Date:"
+        value={newTaskDate}
+        onChange={(date) => setNewTaskDate(date!)}
+      />
+      <SelectField
+        label="Task Status:"
+        value={getTaskStatusString(newTaskStatus)}
+        onChange={(value) => setNewTaskStatus(getTaskStatusFromString(value))}
+        options={taskStatusStrings}
+      />
+    </div>
   );
 };
 
-export default AddTaskModal;
+export default AddTaskDialog;
